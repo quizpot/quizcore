@@ -1,6 +1,6 @@
 # Quizfile
 
-Typescript definition for quizfile
+Typescript definition for quizfile and utility functions for it
 
 ## Installation
 

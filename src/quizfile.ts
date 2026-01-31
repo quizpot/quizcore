@@ -1,6 +1,10 @@
+import { MultipleChoiceQuestion, SafeMultipleChoiceQuestion } from "./questions/multiple-choice";
+import { SafeShortAnswerQuestion, ShortAnswerQuestion } from "./questions/short-answer";
+import { SafeTrueFalseQuestion, TrueFalseQuestion } from "./questions/true-false";
+
 export type QuizFile = {
   id: string // UUID 
-  version: number
+  version: 2 // Current Quizfile version
 
   title: string
   description?: string
@@ -12,14 +16,9 @@ export type QuizFile = {
   // Hash and url pair (base64 in a file)
   images: Record<string, string>
 
-  // Date information
-  updatedAt: Date
-  createdAt: Date
-}
-
-export type QuizStep = {
-  type: "question" | "slide"
-  data: Question | SlideLayout
+  // Date information in ISO string
+  updatedAt: string
+  createdAt: string
 }
 
 export type QuizTheme = {
@@ -27,68 +26,35 @@ export type QuizTheme = {
   background?: string
 }
 
-export type Question = MultipleChoiceQuestion | TrueFalseQuestion | ShortAnswerQuestion | SlideQuestion
-export type QuestionType = Question['questionType']
+export type QuizStep = {
+  type: "question"
+  data: Question
+} | {
+  type: "slide"
+  data: SlideLayout
+}
+
+export type Question = MultipleChoiceQuestion | TrueFalseQuestion | ShortAnswerQuestion
+
+export type SafeQuestion = SafeMultipleChoiceQuestion | SafeTrueFalseQuestion | SafeShortAnswerQuestion
+
 export type QuestionPoints = "normalPoints" | "doublePoints" | "noPoints"
 
-export type MultipleChoiceQuestion = {
-  questionType: "multipleChoice"
+export interface BaseQuestion {
   question: string
-  image?: string
-  choices: Choice[]
-  questionDisplayTime: number
+  imageHash?: string
+  displayTime: number
   timeLimit: number
   points: QuestionPoints
 }
 
-export type Choice = {
-  text: string
-  correct: boolean
-}
+export type SlideLayout = 
+    TitleSlideLayout 
+  | TitleAndTextSlideLayout 
+  | TitleAndTextWithImageSlideLayout 
+  | ComparisonSlideLayout 
+  | TitleImageTextSlideLayout
 
-export type MultipleChoiceAnswer = {
-  answerType: "multipleChoice"
-  choiceIndex: number
-}
-
-export type TrueFalseQuestion = {
-  questionType: "trueFalse"
-  question: string
-  image?: string
-  answer: boolean
-  questionDisplayTime: number
-  timeLimit: number
-  points: QuestionPoints
-}
-
-export type TrueFalseAnswer = {
-  answerType: "trueFalse"
-  answer: boolean
-}
-
-export type ShortAnswerQuestion = {
-  questionType: "shortAnswer"
-  question: string
-  image?: string
-  answers: string[]
-  questionDisplayTime: number
-  timeLimit: number
-  points: QuestionPoints
-}
-
-export type ShortAnswerAnswer = {
-  answerType: "shortAnswer"
-  answer: string
-}
-
-// Slides Feature
-export type SlideQuestion = {
-  questionType: "slide"
-  layout: SlideLayout
-}
-
-export type SlideLayout = TitleSlideLayout | TitleAndTextSlideLayout | TitleAndTextWithImageSlideLayout | ComparisonSlideLayout | TitleImageTextSlideLayout
-export type SlideType = SlideLayout['slideType']
 
 export type TitleSlideLayout = {
   slideType: "title"
@@ -99,7 +65,7 @@ export type TitleSlideLayout = {
 export type TitleImageTextSlideLayout = {
   slideType: "titleImageText"
   title: string
-  image?: string
+  imageHash?: string
   text: string
 }
 
@@ -113,7 +79,7 @@ export type TitleAndTextWithImageSlideLayout = {
   slideType: "titleAndTextWithImage"
   title: string
   text: string
-  image: string
+  imageHash?: string
 }
 
 export type ComparisonSlideLayout = {
