@@ -5,5 +5,5 @@ Typescript definition for quizfile
 ## Installation
 
 ```bash
-npm install @quizpot/quizfile
+npm install https://git.kragleh.com/quizpot/quizfile
 ```
