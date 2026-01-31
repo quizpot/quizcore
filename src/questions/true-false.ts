@@ -1,13 +1,13 @@
 import { BaseQuestion } from "../quizfile";
 
 export interface TrueFalseQuestion extends BaseQuestion {
-  questionType: "trueFalse"
-  answer: boolean
+  questionType: "trueFalse";
+  answer: boolean;
 }
 
 export interface SafeTrueFalseQuestion extends Omit<TrueFalseQuestion, "answer"> {}
 
 export interface TrueFalseQuestionAnswer {
-  type: "trueFalse"
-  answer: boolean
+  type: "trueFalse";
+  answer: boolean;
 }

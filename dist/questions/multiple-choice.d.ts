@@ -1,24 +1,20 @@
 import { BaseQuestion } from "../quizfile";
-
 export interface MultipleChoiceQuestion extends BaseQuestion {
-  questionType: "multipleChoice";
-  choices: Choice[];
+    questionType: "multipleChoice";
+    choices: Choice[];
 }
-
 export interface Choice {
-  text: string;
-  correct: boolean;
+    text: string;
+    correct: boolean;
 }
-
 export interface SafeMultipleChoiceQuestion extends Omit<MultipleChoiceQuestion, "choices"> {
-  choices: SafeChoice[];
+    choices: SafeChoice[];
 }
-
 export interface SafeChoice {
-  text: string;
+    text: string;
 }
-
 export interface MultipleChoiceQuestionAnswer {
-  type: "multipleChoice";
-  choice: number;
+    type: "multipleChoice";
+    choice: number;
 }
+//# sourceMappingURL=multiple-choice.d.ts.map
