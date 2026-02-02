@@ -8,6 +8,7 @@
     "dist"
   ],
   "scripts": {
+    "watch": "tsc --watch",
     "build": "tsc",
     "prepare": "npm run build"
   },

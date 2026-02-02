@@ -1,9 +1,9 @@
 import {
   MultipleChoiceQuestion,
   SafeMultipleChoiceQuestion,
-} from "./questions/multiple-choice";
-import { SafeShortAnswerQuestion, ShortAnswerQuestion } from "./questions/short-answer";
-import { SafeTrueFalseQuestion, TrueFalseQuestion } from "./questions/true-false";
+} from "../questions/multiple-choice";
+import { SafeShortAnswerQuestion, ShortAnswerQuestion } from "../questions/short-answer";
+import { SafeTrueFalseQuestion, TrueFalseQuestion } from "../questions/true-false";
 
 export type QuizFile = {
   id: string; // UUID

@@ -1,4 +1,4 @@
-import { BaseQuestion } from "../quizfile";
+import { BaseQuestion } from "../types/quizfile";
 
 export interface ShortAnswerQuestion extends BaseQuestion {
   questionType: "shortAnswer";

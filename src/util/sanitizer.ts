@@ -1,5 +1,5 @@
 import { isMultipleChoice, isShortAnswer, isTrueFalse } from "./guards";
-import { Question, SafeQuestion } from "./quizfile";
+import { Question, SafeQuestion } from "../types/quizfile";
 
 export const sanitizeQuestion = (question: Question): SafeQuestion => {
   if (isMultipleChoice(question)) {
