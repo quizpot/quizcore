@@ -1,9 +1,9 @@
-# Quizfile
+# Quizcore
 
-Typescript definition for quizfile and utility functions for it
+Core library for Quizpot
 
 ## Installation
 
 ```bash
-npm install git+https://git.kragleh.com/quizpot/quizfile.git
+npm install git+https://git.kragleh.com/quizpot/quizcore.git
 ```

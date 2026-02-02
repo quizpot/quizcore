@@ -1,7 +1,7 @@
 {
-  "name": "@quizpot/quizfile",
+  "name": "@quizpot/quizcore",
   "version": "0.0.1",
-  "description": "Typescript definition for quizfile",
+  "description": "Core library for Quizpot",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
