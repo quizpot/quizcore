@@ -1,46 +1,32 @@
-import { LobbyStatus, Player, LobbySettings } from "./lobby";
-import { SubmittedAnswer } from "../util/validator";
+import { LobbyJoined } from "../events/server/lobby-joined";
+import { PlayerJoined } from "../events/server/player-joined";
+import { PlayerLeft } from "../events/server/player-left";
+import { PlayerUpdate } from "../events/server/player-update";
+import { LobbyStatusUpdate } from "../events/server/lobby-status-update";
+import { UpdateLobbyAnswers } from "../events/server/update-lobby-answers";
+import { PlayerAnswerResult } from "../events/server/player-answer-result";
+import { PlayerKicked } from "../events/server/player-kicked";
+import { LobbyDeleted } from "../events/server/lobby-deleted";
+import { KickPlayer } from "../events/client/host/kick-player";
+import { StartLobby } from "../events/client/host/start-lobby";
+import { NextStep } from "../events/client/host/next-step";
+import { SubmitAnswer } from "../events/client/player/submit-answer";
 
-/**
- * Events sent FROM the Client TO the Server
- */
-export namespace ClientEvents {
-  export type JoinRoom = {
-    type: "JOIN_ROOM";
-    payload: { code: string; name: string };
-  };
+// Events sent FROM the Client TO the Server
+export type AllClientEvents = 
+| KickPlayer
+| StartLobby
+| NextStep
+| SubmitAnswer;
 
-  export type SubmitAnswer = {
-    type: "SUBMIT_ANSWER";
-    payload: { submission: SubmittedAnswer };
-  };
-
-  export type NextStep = {
-    type: "NEXT_STEP";
-  };
-
-  export type All = JoinRoom | SubmitAnswer | NextStep;
-}
-
-/**
- * Events sent FROM the Server TO the Client
- */
-export namespace ServerEvents {
-  export type LobbyUpdate = {
-    type: "LOBBY_UPDATE";
-    payload: {
-      status: LobbyStatus;
-      players: Player[];
-      currentStepIndex: number;
-      stepStartedAt: number | null;
-      settings: LobbySettings;
-    };
-  };
-
-  export type GameError = {
-    type: "ERROR";
-    payload: { message: string; code: number };
-  };
-
-  export type All = LobbyUpdate | GameError;
-}
+// Events sent FROM the Server TO the Client
+export type AllServerEvents = 
+| PlayerJoined
+| PlayerLeft
+| PlayerUpdate
+| LobbyStatusUpdate
+| UpdateLobbyAnswers
+| PlayerAnswerResult
+| PlayerKicked
+| LobbyDeleted
+| LobbyJoined;

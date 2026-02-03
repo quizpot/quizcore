@@ -1,48 +1,16 @@
-import { LobbyStatus, Player, LobbySettings } from "./lobby";
-import { SubmittedAnswer } from "../util/validator";
-/**
- * Events sent FROM the Client TO the Server
- */
-export declare namespace ClientEvents {
-    type JoinRoom = {
-        type: "JOIN_ROOM";
-        payload: {
-            code: string;
-            name: string;
-        };
-    };
-    type SubmitAnswer = {
-        type: "SUBMIT_ANSWER";
-        payload: {
-            submission: SubmittedAnswer;
-        };
-    };
-    type NextStep = {
-        type: "NEXT_STEP";
-    };
-    type All = JoinRoom | SubmitAnswer | NextStep;
-}
-/**
- * Events sent FROM the Server TO the Client
- */
-export declare namespace ServerEvents {
-    type LobbyUpdate = {
-        type: "LOBBY_UPDATE";
-        payload: {
-            status: LobbyStatus;
-            players: Player[];
-            currentStepIndex: number;
-            stepStartedAt: number | null;
-            settings: LobbySettings;
-        };
-    };
-    type GameError = {
-        type: "ERROR";
-        payload: {
-            message: string;
-            code: number;
-        };
-    };
-    type All = LobbyUpdate | GameError;
-}
+import { LobbyJoined } from "../events/server/lobby-joined";
+import { PlayerJoined } from "../events/server/player-joined";
+import { PlayerLeft } from "../events/server/player-left";
+import { PlayerUpdate } from "../events/server/player-update";
+import { LobbyStatusUpdate } from "../events/server/lobby-status-update";
+import { UpdateLobbyAnswers } from "../events/server/update-lobby-answers";
+import { PlayerAnswerResult } from "../events/server/player-answer-result";
+import { PlayerKicked } from "../events/server/player-kicked";
+import { LobbyDeleted } from "../events/server/lobby-deleted";
+import { KickPlayer } from "../events/client/host/kick-player";
+import { StartLobby } from "../events/client/host/start-lobby";
+import { NextStep } from "../events/client/host/next-step";
+import { SubmitAnswer } from "../events/client/player/submit-answer";
+export type AllClientEvents = KickPlayer | StartLobby | NextStep | SubmitAnswer;
+export type AllServerEvents = PlayerJoined | PlayerLeft | PlayerUpdate | LobbyStatusUpdate | UpdateLobbyAnswers | PlayerAnswerResult | PlayerKicked | LobbyDeleted | LobbyJoined;
 //# sourceMappingURL=events.d.ts.map

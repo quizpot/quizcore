@@ -10,5 +10,5 @@ export interface Answer {
     isCorrect: boolean;
     pointsAwarded: number;
 }
-export declare const checkCorrectness: (question: Question, submission: SubmittedAnswer) => boolean;
+export declare const isCorrect: (question: Question, submission: SubmittedAnswer) => boolean;
 //# sourceMappingURL=validator.d.ts.map

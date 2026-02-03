@@ -17,7 +17,7 @@ export interface Answer {
   pointsAwarded: number;
 };
 
-export const checkCorrectness = (question: Question, submission: SubmittedAnswer): boolean => {
+export const isCorrect = (question: Question, submission: SubmittedAnswer): boolean => {
   if (isMultipleChoice(question) && submission.type === "multipleChoice") {
     if (question.matchAll) {
       const correctIndices = question.choices

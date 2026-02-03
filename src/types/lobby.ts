@@ -1,13 +1,18 @@
 import { Answer } from "../util/validator";
-import { QuizFile } from "./quizfile";
+import { QuizFile, QuizTheme } from "./quizfile";
 
 export type Lobby = {
   code: string;
   host: string; // Id of the WebSocket connection
   quiz: QuizFile;
+  quizInfo: {
+    title: string;
+    stepCount: number;
+    theme: QuizTheme;
+  };
   players: Player[];
   status: LobbyStatus;
-  stepStartedAt: number | null;
+  timeoutStartedAt: number | null;
   duration: number | null;
   currentStep: number;
   currentAnswers: Answer[];

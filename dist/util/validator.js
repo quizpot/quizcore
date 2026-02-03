@@ -1,6 +1,6 @@
 import { isMultipleChoice, isShortAnswer, isTrueFalse } from "../util/guards";
 ;
-export const checkCorrectness = (question, submission) => {
+export const isCorrect = (question, submission) => {
     if (isMultipleChoice(question) && submission.type === "multipleChoice") {
         if (question.matchAll) {
             const correctIndices = question.choices

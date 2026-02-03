@@ -1,0 +1,1 @@
+{"version":3,"file":"player-kicked.d.ts","sourceRoot":"","sources":["../../../src/events/server/player-kicked.ts"],"names":[],"mappings":"AAAA,MAAM,MAAM,YAAY,GAAG;IACzB,IAAI,EAAE,eAAe,CAAC;IACtB,OAAO,EAAE,EAAE,CAAC;CACb,CAAC;AAEF,eAAO,MAAM,uBAAuB,QAAO,YAGzC,CAAC"}
