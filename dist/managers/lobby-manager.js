@@ -2,7 +2,24 @@ import { LobbyStatus } from "../types/lobby";
 import { isQuestion } from "../util/guards";
 import { calculateScore } from "../util/score";
 import { isCorrect } from "../util/validator";
-// Advances the lobby to the next step
+export const createLobby = (code, hostId, quiz) => ({
+    code,
+    host: hostId,
+    quiz,
+    quizInfo: {
+        title: quiz.title,
+        stepCount: quiz.steps.length,
+        theme: quiz.theme
+    },
+    players: [],
+    status: LobbyStatus.waiting,
+    currentStep: 0,
+    timeoutStartedAt: null,
+    duration: null,
+    currentAnswers: [],
+    answers: [],
+    settings: { customNames: true, displayOnDevice: true }
+});
 export const advanceLobby = (lobby) => {
     const isLastStep = lobby.currentStep >= lobby.quiz.steps.length - 1;
     switch (lobby.status) {

@@ -1,6 +1,8 @@
 import { PlayerAnswerResult } from "../events/server/player-answer-result";
 import { Lobby } from "../types/lobby";
+import { QuizFile } from "../types/quizfile";
 import { SubmittedAnswer } from "../util/validator";
+export declare const createLobby: (code: string, hostId: string, quiz: QuizFile) => Lobby;
 export declare const advanceLobby: (lobby: Lobby) => Lobby;
 export type SubmissionResult = {
     nextLobby: Lobby;
