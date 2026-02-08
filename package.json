@@ -12,6 +12,12 @@
     "build": "tsc",
     "prepare": "npm run build"
   },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
   "devDependencies": {
     "typescript": "^5.9.3"
   }
