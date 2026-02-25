@@ -1,33 +1,53 @@
+import z from "zod";
 import {
   MultipleChoiceQuestion,
   SafeMultipleChoiceQuestion,
 } from "../questions/multiple-choice";
 import { SafeShortAnswerQuestion, ShortAnswerQuestion } from "../questions/short-answer";
 import { SafeTrueFalseQuestion, TrueFalseQuestion } from "../questions/true-false";
+import { TitleSlideLayoutSchema } from "../slides/titleSlide";
+import { TitleImageTextSlideLayoutSchema } from "../slides/titleImageTextSlide";
+import { ComparisonSlideLayoutSchema } from "../slides/comparison";
 
-export type QuizFile = {
-  id: string; // UUID
-  version: 2; // Current Quizfile version
+export type QuizFile = z.infer<typeof QuizFileSchema>;
 
-  title: string;
-  description?: string;
-  theme: QuizTheme;
-  language: string; // ISO 639-1 code
+export const QuizFileSchema = z.object({
+  id: z.uuid(),
+  version: z.literal(2),
 
-  steps: QuizStep[];
+  title: z.string()
+    .min(1, "Title must be atleast 1 character long")
+    .max(64, "Title can't be longer than 64 characters"),
+  description: z.string()
+    .max(255, "Description can't be longer than 256 characters")
+    .optional(),
+  theme: QuizThemeSchema,
+  language: z.string()
+    .length(2, "Language must be a 2-letter ISO 639-1 code"),
 
-  // Hash and url pair (base64 in a file)
-  images: Record<string, string>;
+  steps: z.array(QuizStepSchema)
+    .min(1, "Quiz must have at least 1 step"),
 
-  // Date information in ISO string
-  updatedAt: string;
-  createdAt: string;
-};
+  images: z.record(
+    z.hash("sha256", { error: "Invalid image hash" }),
+    z.string().refine((val) => {
+      return val.startsWith("http") || val.startsWith("data:image/");
+    }, "Image must be a valid URL or Base64 data string")
+  ),
 
-export type QuizTheme = {
-  color: string;
-  background?: string;
-};
+  updatedAt: z.iso.datetime(),
+  createdAt: z.iso.datetime(),
+})
+
+export type QuizTheme = z.infer<typeof QuizThemeSchema>;
+
+export const QuizThemeSchema = z.object({
+  color: z.string().regex(
+    /^#[0-9a-fA-F]{6}$/,
+    { message: 'Invalid color format. Must be a 7-character hex code (e.g., #RRGGBB).' }
+  ),
+  background: z.hash("sha256", { error: "Invalid background hash" }).optional(),
+});
 
 export type QuizStep =
   | {
@@ -39,59 +59,48 @@ export type QuizStep =
       data: SlideLayout;
     };
 
+export const QuizStepSchema = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("question"), data: QuestionSchema }),
+  z.object({ type: z.literal("slide"), data: SlideLayoutSchema }),
+]);
+
 export type Question = MultipleChoiceQuestion | TrueFalseQuestion | ShortAnswerQuestion;
+
+export const QuestionSchema = z.discriminatedUnion("type", [
+  MultipleChoiceSchema,
+  TrueFalseSchema,
+  ShortAnswerSchema,
+]);
 
 export type SafeQuestion =
   | SafeMultipleChoiceQuestion
   | SafeTrueFalseQuestion
   | SafeShortAnswerQuestion;
 
-export type QuestionPoints = "normalPoints" | "doublePoints" | "noPoints";
+export const SafeQuestionSchema = z.discriminatedUnion("type", [
+  SafeMultipleChoiceSchema,
+  SafeTrueFalseSchema,
+  SafeShortAnswerSchema,
+]);
 
-export interface BaseQuestion {
-  question: string;
-  imageHash?: string;
-  displayTime: number;
-  timeLimit: number;
-  points: QuestionPoints;
-}
+export type QuestionPoints = z.infer<typeof QuestionPointsSchema>;
 
-export type SlideLayout =
-  | TitleSlideLayout
-  | TitleAndTextSlideLayout
-  | TitleAndTextWithImageSlideLayout
-  | ComparisonSlideLayout
-  | TitleImageTextSlideLayout;
+export const QuestionPointsSchema = z.enum(["normalPoints", "doublePoints", "noPoints"]);
 
-export type TitleSlideLayout = {
-  slideType: "title";
-  title: string;
-  subtitle?: string;
-};
+export type BaseQuestion = z.infer<typeof BaseQuestionSchema>;
 
-export type TitleImageTextSlideLayout = {
-  slideType: "titleImageText";
-  title: string;
-  imageHash?: string;
-  text: string;
-};
+export const BaseQuestionSchema = z.object({
+  question: z.string().min(1),
+  imageHash: z.hash("sha256", { error: "Invalid image hash" }).optional(),
+  displayTime: z.number().min(1).max(60),
+  timeLimit: z.number().min(1).max(180),
+  points: QuestionPointsSchema,
+});
 
-export type TitleAndTextSlideLayout = {
-  slideType: "titleAndText";
-  title: string;
-  text: string;
-};
+export type SlideLayout = z.infer<typeof SlideLayoutSchema>;
 
-export type TitleAndTextWithImageSlideLayout = {
-  slideType: "titleAndTextWithImage";
-  title: string;
-  text: string;
-  imageHash?: string;
-};
-
-export type ComparisonSlideLayout = {
-  slideType: "comparison";
-  title: string;
-  left: string;
-  right: string;
-};
+export const SlideLayoutSchema = z.discriminatedUnion("slideType", [
+  TitleSlideLayoutSchema,
+  TitleImageTextSlideLayoutSchema,
+  ComparisonSlideLayoutSchema
+]);
