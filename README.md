@@ -5,5 +5,5 @@ Core library for Quizpot
 ## Installation
 
 ```bash
-npm install git+https://git.kragleh.com/quizpot/quizcore.git
+npm install git+https://github.com/quizpot/quizcore.git
 ```
