@@ -1,6 +1,6 @@
-import { MultipleChoiceQuestion } from "../questions/multiple-choice";
-import { ShortAnswerQuestion } from "../questions/short-answer";
-import { TrueFalseQuestion } from "../questions/true-false";
+import { MultipleChoiceQuestion } from "../types/questions/multiple-choice";
+import { ShortAnswerQuestion } from "../types/questions/short-answer";
+import { TrueFalseQuestion } from "../types/questions/true-false";
 import { 
   QuizStep, 
   Question, 

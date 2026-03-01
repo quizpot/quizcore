@@ -1,7 +1,7 @@
 import { isMultipleChoice, isShortAnswer, isTrueFalse } from "../util/guards";
-import { MultipleChoiceQuestionAnswer } from "../questions/multiple-choice";
-import { ShortAnswerQuestionAnswer } from "../questions/short-answer";
-import { TrueFalseQuestionAnswer } from "../questions/true-false";
+import { MultipleChoiceQuestionAnswer } from "../types/questions/multiple-choice";
+import { ShortAnswerQuestionAnswer } from "../types/questions/short-answer";
+import { TrueFalseQuestionAnswer } from "../types/questions/true-false";
 import { Question } from "../types/quizfile";
 
 export type SubmittedAnswer = 
