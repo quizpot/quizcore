@@ -1,24 +1,30 @@
 import { isMultipleChoice, isShortAnswer, isTrueFalse } from "../util/guards";
-import { MultipleChoiceQuestionAnswer } from "../questions/multiple-choice";
-import { ShortAnswerQuestionAnswer } from "../questions/short-answer";
-import { TrueFalseQuestionAnswer } from "../questions/true-false";
+import { MultipleChoiceQuestionAnswerSchema } from "../questions/multiple-choice";
+import { ShortAnswerQuestionAnswerSchema } from "../questions/short-answer";
+import { TrueFalseQuestionAnswerSchema } from "../questions/true-false";
 import { Question } from "../types/quizfile";
+import z from "zod";
 
-export type SubmittedAnswer = 
-  | MultipleChoiceQuestionAnswer 
-  | TrueFalseQuestionAnswer 
-  | ShortAnswerQuestionAnswer;
+export const SubmittedAnswerSchema = z.discriminatedUnion("type", [
+  MultipleChoiceQuestionAnswerSchema,
+  TrueFalseQuestionAnswerSchema,
+  ShortAnswerQuestionAnswerSchema,
+]);
 
-export interface Answer {
-  playerId: string;
-  submission: SubmittedAnswer;
-  timeTaken: number;
-  isCorrect: boolean;
-  pointsAwarded: number;
-};
+export type SubmittedAnswer = z.infer<typeof SubmittedAnswerSchema>;
+
+export const AnswerSchema = z.object({
+  playerId: z.uuid(),
+  submission: SubmittedAnswerSchema,
+  timeTaken: z.number().nonnegative(),
+  isCorrect: z.boolean(),
+  pointsAwarded: z.number().min(0),
+});
+
+export type Answer = z.infer<typeof AnswerSchema>;
 
 export const isCorrect = (question: Question, submission: SubmittedAnswer): boolean => {
-  if (isMultipleChoice(question) && submission.type === "multipleChoice") {
+  if (submission.type === "multipleChoice" && isMultipleChoice(question)) {
     if (question.matchAll) {
       const correctIndices = question.choices
         .map((c, i) => (c.correct ? i : -1))

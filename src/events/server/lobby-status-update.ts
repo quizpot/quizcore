@@ -1,22 +1,60 @@
-import { LobbyStatus, Player } from "../../types/lobby";
-import { SafeQuestion, SlideLayout } from "../../types/quizfile";
-import { Answer } from "../../util/validator";
+import z from "zod";
+import { LobbyStatus, PlayerSchema } from "../../types/lobby";
+import { SafeQuestionSchema, SlideLayoutSchema } from "../../types/quizfile";
+import { AnswerSchema } from "../../util/validator";
 
-export type LobbyStatusUpdate = {
-  type: "LOBBY_STATUS_UPDATE";
-  payload: 
-    | { status: LobbyStatus.waiting }
-    | { status: LobbyStatus.slide; slide: SlideLayout }
-    | { status: LobbyStatus.question; question: SafeQuestion; timeoutStartedAt: number; duration: number }
-    | { status: LobbyStatus.answer; timeoutStartedAt: number; duration: number }
-    | { status: LobbyStatus.answers; answers: Answer[] }
-    | { status: LobbyStatus.score; leaderboard: Player[] }
-    | { status: LobbyStatus.end };
-};
+const WaitingPayload = z.object({ status: z.literal(LobbyStatus.waiting) });
+
+const SlidePayload = z.object({ 
+  status: z.literal(LobbyStatus.slide), 
+  slide: SlideLayoutSchema 
+});
+
+const QuestionPayload = z.object({ 
+  status: z.literal(LobbyStatus.question), 
+  question: SafeQuestionSchema, 
+  timeoutStartedAt: z.number(), 
+  duration: z.number() 
+});
+
+const AnswerPayload = z.object({ 
+  status: z.literal(LobbyStatus.answer), 
+  timeoutStartedAt: z.number(), 
+  duration: z.number() 
+});
+
+const AnswersPayload = z.object({ 
+  status: z.literal(LobbyStatus.answers), 
+  answers: z.array(AnswerSchema) 
+});
+
+const ScorePayload = z.object({ 
+  status: z.literal(LobbyStatus.score), 
+  leaderboard: z.array(PlayerSchema) 
+});
+
+const EndPayload = z.object({ status: z.literal(LobbyStatus.end) });
+
+export const LobbyStatusUpdateSchema = z.object({
+  type: z.literal("LOBBY_STATUS_UPDATE"),
+  payload: z.discriminatedUnion("status", [
+    WaitingPayload,
+    SlidePayload,
+    QuestionPayload,
+    AnswerPayload,
+    AnswersPayload,
+    ScorePayload,
+    EndPayload,
+  ]),
+});
+
+export type LobbyStatusUpdate = z.infer<typeof LobbyStatusUpdateSchema>;
 
 export const createLobbyStatusUpdateEvent = (
   payload: LobbyStatusUpdate["payload"]
-): LobbyStatusUpdate => ({
-  type: "LOBBY_STATUS_UPDATE",
-  payload,
-});
+): LobbyStatusUpdate => {
+  return LobbyStatusUpdateSchema.parse({
+    type: "LOBBY_STATUS_UPDATE",
+    payload,
+  });
+};

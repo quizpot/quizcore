@@ -1,11 +1,18 @@
-import { Player } from "../../types/lobby";
+import z from "zod";
+import { PlayerSchema } from "../../types/lobby";
 
-export type PlayerLeft = {
-  type: "PLAYER_LEFT";
-  payload: { player: Player };
-};
-
-export const createPlayerLeftEvent = (player: Player): PlayerLeft => ({
-  type: "PLAYER_LEFT",
-  payload: { player }
+export const PlayerLeftSchema = z.object({
+  type: z.literal("PLAYER_LEFT"),
+  payload: z.object({
+    player: PlayerSchema,
+  }),
 });
+
+export type PlayerLeft = z.infer<typeof PlayerLeftSchema>;
+
+export const createPlayerLeftEvent = (player: z.infer<typeof PlayerSchema>): PlayerLeft => {
+  return PlayerLeftSchema.parse({
+    type: "PLAYER_LEFT",
+    payload: { player }
+  });
+};

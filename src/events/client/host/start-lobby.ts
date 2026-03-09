@@ -1,9 +1,15 @@
-export type StartLobby = {
-  type: "START_LOBBY";
-  payload: {};
-};
+import z from "zod";
 
-export const createStartLobbyEvent = (): StartLobby => ({
-  type: "START_LOBBY",
-  payload: {}
+export const StartLobbySchema = z.object({
+  type: z.literal("START_LOBBY"),
+  payload: z.object({}),
 });
+
+export type StartLobby = z.infer<typeof StartLobbySchema>;
+
+export const createStartLobbyEvent = (): StartLobby => {
+  return StartLobbySchema.parse({
+    type: "START_LOBBY",
+    payload: {},
+  });
+};

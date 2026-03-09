@@ -1,36 +1,41 @@
-import { Lobby, Player } from "../../types/lobby";
-import { Answer } from "../../util/validator";
+import z from "zod";
+import { LobbySchema, PlayerSchema } from "../../types/lobby";
+import { AnswerSchema } from "../../util/validator";
 
-export type LobbyJoined = {
-  type: "LOBBY_JOINED";
-  payload: { 
-    lobby: Omit<Lobby, "host" | "quiz" | "players" | "currentAnswers" | "answers">;
-    me?: Player;
-    players?: Player[];
-    currentAnswers?: Answer[];
-    answers?: Answer[];
-  };
-};
+const StrippedLobbySchema = LobbySchema.omit({
+  host: true,
+  quiz: true,
+  players: true,
+  currentAnswers: true,
+  answers: true,
+});
+
+export const LobbyJoinedSchema = z.object({
+  type: z.literal("LOBBY_JOINED"),
+  payload: z.object({
+    lobby: StrippedLobbySchema,
+    me: PlayerSchema.optional(),
+    players: z.array(PlayerSchema).optional(),
+    currentAnswers: z.array(AnswerSchema).optional(),
+    answers: z.array(AnswerSchema).optional(),
+  }),
+});
+
+export type LobbyJoined = z.infer<typeof LobbyJoinedSchema>;
 
 export const createLobbyJoinedEvent = (
-  lobby: Lobby, 
-  me: Player, 
+  lobby: z.infer<typeof LobbySchema>, 
+  me: z.infer<typeof PlayerSchema>, 
   isHost: boolean
-): LobbyJoined => ({
-  type: "LOBBY_JOINED",
-  payload: {
-    lobby: {
-      code: lobby.code,
-      quizInfo: lobby.quizInfo,
-      status: lobby.status,
-      timeoutStartedAt: lobby.timeoutStartedAt,
-      duration: lobby.duration,
-      currentStep: lobby.currentStep,
-      settings: lobby.settings,
-    },
-    me,
-    players: isHost ? lobby.players : undefined,
-    currentAnswers: isHost ? lobby.currentAnswers : undefined,
-    answers: isHost ? lobby.answers : undefined,
-  }
-});
+): LobbyJoined => {
+  return LobbyJoinedSchema.parse({
+    type: "LOBBY_JOINED",
+    payload: {
+      lobby,
+      me,
+      players: isHost ? lobby.players : undefined,
+      currentAnswers: isHost ? lobby.currentAnswers : undefined,
+      answers: isHost ? lobby.answers : undefined,
+    }
+  });
+};

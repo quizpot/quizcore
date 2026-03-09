@@ -1,13 +1,22 @@
-import { BaseQuestion } from "../types/quizfile";
+import z from "zod";
+import { BaseQuestionSchema } from "../types/quizfile";
 
-export interface TrueFalseQuestion extends BaseQuestion {
-  questionType: "trueFalse";
-  answer: boolean;
-}
+export const TrueFalseQuestionSchema = BaseQuestionSchema.extend({
+  questionType: z.literal("trueFalse"),
+  answer: z.boolean(),
+});
 
-export interface SafeTrueFalseQuestion extends Omit<TrueFalseQuestion, "answer"> {}
+export type TrueFalseQuestion = z.infer<typeof TrueFalseQuestionSchema>;
 
-export interface TrueFalseQuestionAnswer {
-  type: "trueFalse";
-  answer: boolean;
-}
+export const SafeTrueFalseQuestionSchema = TrueFalseQuestionSchema.omit({
+  answer: true,
+});
+
+export type SafeTrueFalseQuestion = z.infer<typeof SafeTrueFalseQuestionSchema>;
+
+export const TrueFalseQuestionAnswerSchema = z.object({
+  type: z.literal("trueFalse"),
+  answer: z.boolean(),
+});
+
+export type TrueFalseQuestionAnswer = z.infer<typeof TrueFalseQuestionAnswerSchema>;
