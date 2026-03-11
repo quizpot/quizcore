@@ -1,14 +1,14 @@
 import z from "zod";
-import { MultipleChoiceQuestion, MultipleChoiceQuestionSchema, SafeMultipleChoiceQuestion } from "./questions/multiple-choice";
-import { SafeTrueFalseQuestion, TrueFalseQuestion } from "./questions/true-false";
-import { SafeShortAnswerQuestion, ShortAnswerQuestion } from "./questions/short-answer";
+import { MultipleChoiceQuestion, MultipleChoiceQuestionSchema, SafeMultipleChoiceQuestion, SafeMultipleChoiceQuestionSchema } from "./questions/multiple-choice";
+import { SafeTrueFalseQuestion, SafeTrueFalseQuestionSchema, TrueFalseQuestion, TrueFalseQuestionSchema } from "./questions/true-false";
+import { SafeShortAnswerQuestion, SafeShortAnswerQuestionSchema, ShortAnswerQuestion, ShortAnswerQuestionSchema } from "./questions/short-answer";
 
 export type Question = MultipleChoiceQuestion | TrueFalseQuestion | ShortAnswerQuestion;
 
 export const QuestionSchema = z.discriminatedUnion("type", [
   MultipleChoiceQuestionSchema,
-  TrueFalseSchema,
-  ShortAnswerSchema,
+  TrueFalseQuestionSchema,
+  ShortAnswerQuestionSchema,
 ]);
 
 export type SafeQuestion =
@@ -17,9 +17,9 @@ export type SafeQuestion =
   | SafeShortAnswerQuestion;
 
 export const SafeQuestionSchema = z.discriminatedUnion("type", [
-  SafeMultipleChoiceSchema,
-  SafeTrueFalseSchema,
-  SafeShortAnswerSchema,
+  SafeMultipleChoiceQuestionSchema,
+  SafeTrueFalseQuestionSchema,
+  SafeShortAnswerQuestionSchema,
 ]);
 
 export type QuestionPoints = z.infer<typeof QuestionPointsSchema>;

@@ -1,5 +1,6 @@
 import z from "zod";
-import { Question, QuestionSchema, SlideLayout, SlideLayoutSchema } from "./quizfile";
+import { Question, QuestionSchema } from "./question";
+import { Slide, SlideSchema } from "./slide";
 
 export type QuizStep =
   | {
@@ -8,10 +9,10 @@ export type QuizStep =
     }
   | {
       type: "slide";
-      data: SlideLayout;
+      data: Slide;
     };
 
 export const QuizStepSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("question"), data: QuestionSchema }),
-  z.object({ type: z.literal("slide"), data: SlideLayoutSchema }),
+  z.object({ type: z.literal("slide"), data: SlideSchema }),
 ]);

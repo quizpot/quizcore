@@ -1,5 +1,6 @@
 import z from "zod";
 import { QuizThemeSchema } from "./quiztheme";
+import { QuizStepSchema } from "./quizstep";
 
 export type QuizFile = z.infer<typeof QuizFileSchema>;
 
