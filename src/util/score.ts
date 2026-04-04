@@ -1,5 +1,6 @@
 import { Answer } from "./validator";
-import { Question, QuizFile } from "../types/quizfile";
+import { QuizFile } from "../types/quizfile";
+import { Question } from "../types/question";
 
 const BASE_SCORE = 500;
 const TIME_BONUS_MAX = 500;

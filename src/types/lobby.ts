@@ -1,5 +1,6 @@
 import { Answer } from "../util/validator";
-import { QuizFile, QuizTheme } from "./quizfile";
+import { QuizFile } from "./quizfile";
+import { QuizTheme } from "./quiztheme";
 
 export type Lobby = {
   code: string;

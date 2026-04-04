@@ -1,28 +1,26 @@
+import { Question } from "../types/question";
 import { MultipleChoiceQuestion } from "../types/questions/multiple-choice";
 import { ShortAnswerQuestion } from "../types/questions/short-answer";
 import { TrueFalseQuestion } from "../types/questions/true-false";
-import { 
-  QuizStep, 
-  Question, 
-  SlideLayout
-} from "../types/quizfile";
+import { QuizStep } from "../types/quizstep";
+import { Slide } from "../types/slide";
 
 export const isQuestion = (step: QuizStep): step is { type: "question"; data: Question } => {
   return step.type === "question";
 };
 
-export const isSlide = (step: QuizStep): step is { type: "slide"; data: SlideLayout } => {
+export const isSlide = (step: QuizStep): step is { type: "slide"; data: Slide } => {
   return step.type === "slide";
 };
 
 export const isMultipleChoice = (data: Question): data is MultipleChoiceQuestion => {
-  return data.questionType === "multipleChoice";
+  return data.type === "multiple-choice";
 };
 
 export const isTrueFalse = (data: Question): data is TrueFalseQuestion => {
-  return data.questionType === "trueFalse";
+  return data.type === "true-false";
 };
 
 export const isShortAnswer = (data: Question): data is ShortAnswerQuestion => {
-  return data.questionType === "shortAnswer";
+  return data.type === "short-answer";
 };

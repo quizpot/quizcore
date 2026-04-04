@@ -1,1 +1,0 @@
-{"version":3,"file":"kick-player.d.ts","sourceRoot":"","sources":["../../../../src/events/client/host/kick-player.ts"],"names":[],"mappings":"AAAA,MAAM,MAAM,UAAU,GAAG;IACvB,IAAI,EAAE,aAAa,CAAC;IACpB,OAAO,EAAE;QAAE,QAAQ,EAAE,MAAM,CAAA;KAAE,CAAC;CAC/B,CAAC;AAEF,eAAO,MAAM,qBAAqB,GAAI,UAAU,MAAM,KAAG,UAGvD,CAAC"}

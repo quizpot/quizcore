@@ -1,11 +1,11 @@
 import { isMultipleChoice, isShortAnswer, isTrueFalse } from "../util/guards";
-import { MultipleChoiceQuestionAnswer } from "../types/questions/multiple-choice";
 import { ShortAnswerQuestionAnswer } from "../types/questions/short-answer";
 import { TrueFalseQuestionAnswer } from "../types/questions/true-false";
-import { Question } from "../types/quizfile";
+import { MultipleChoiceQuestionAnswer } from "../types/questions/multiple-choice";
+import { Question } from "../types/question";
 
 export type SubmittedAnswer = 
-  | MultipleChoiceQuestionAnswer 
+  | MultipleChoiceQuestionAnswer
   | TrueFalseQuestionAnswer 
   | ShortAnswerQuestionAnswer;
 
@@ -18,7 +18,7 @@ export interface Answer {
 };
 
 export const isCorrect = (question: Question, submission: SubmittedAnswer): boolean => {
-  if (isMultipleChoice(question) && submission.type === "multipleChoice") {
+  if (isMultipleChoice(question) && submission.type === "multiple-choice") {
     if (question.matchAll) {
       const correctIndices = question.choices
         .map((c, i) => (c.correct ? i : -1))
@@ -38,11 +38,11 @@ export const isCorrect = (question: Question, submission: SubmittedAnswer): bool
     });
   }
 
-  if (isTrueFalse(question) && submission.type === "trueFalse") {
+  if (isTrueFalse(question) && submission.type === "true-false") {
     return question.answer === submission.answer;
   }
 
-  if (isShortAnswer(question) && submission.type === "shortAnswer") {
+  if (isShortAnswer(question) && submission.type === "short-answer") {
     const playerAns = submission.answer.trim().toLowerCase();
     return question.answers.some(ans => ans.trim().toLowerCase() === playerAns);
   }

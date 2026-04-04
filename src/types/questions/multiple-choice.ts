@@ -32,3 +32,5 @@ export const MultipleChoiceQuestionAnswerSchema = z.object({
   type: z.literal("multiple-choice"),
   choices: z.array(z.number()).min(1),
 });
+
+export type MultipleChoiceQuestionAnswer = z.infer<typeof MultipleChoiceQuestionAnswerSchema>;
