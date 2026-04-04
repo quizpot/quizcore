@@ -8,9 +8,8 @@
     "dist"
   ],
   "scripts": {
-    "watch": "tsc --watch",
-    "build": "tsc",
-    "prepare": "npm run build"
+    "build": "tsdown src/index.ts --format esm,cjs --dts --clean",
+    "watch": "tsdown src/index.ts --format esm,cjs --dts --watch"
   },
   "exports": {
     ".": {
@@ -20,6 +19,7 @@
     }
   },
   "devDependencies": {
+    "tsdown": "^0.21.7",
     "typescript": "^5.9.3"
   },
   "dependencies": {
