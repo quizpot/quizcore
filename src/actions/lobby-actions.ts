@@ -2,6 +2,10 @@ import { Lobby, LobbySettings, LobbyStatus, Player } from "../types/lobby";
 import { QuizFile } from "../types/quizfile";
 
 export const LobbyActions = {
+  generateCode(): string {
+    return (Math.floor(Math.random() * 900000) + 100000).toString();
+  },
+
   create(code: string, host: string, quiz: QuizFile, settings: LobbySettings): Lobby {
     return {
       code,
