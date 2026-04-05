@@ -10,7 +10,8 @@
   ],
   "scripts": {
     "build": "tsdown src/index.ts --format esm,cjs --dts --clean",
-    "watch": "tsdown src/index.ts --format esm,cjs --dts --watch"
+    "watch": "tsdown src/index.ts --format esm,cjs --dts --watch",
+    "publish": "npm publish --access public"
   },
   "exports": {
     ".": {
