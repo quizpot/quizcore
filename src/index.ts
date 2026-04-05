@@ -27,6 +27,7 @@ export * from './types/quiztheme';
 export * from './types/slide';
 export * from './util/names/names';
 export * from './util/guards';
+export * from './util/id';
 export * from './util/sanitizer';
 export * from './util/score';
 export * from './util/validator';
