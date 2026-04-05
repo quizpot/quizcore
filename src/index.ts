@@ -1,3 +1,4 @@
+export * from './actions/lobby-actions';
 export * from './events/client/host/kick-player';
 export * from './events/client/host/next-step';
 export * from './events/client/host/start-lobby';
@@ -11,7 +12,6 @@ export * from './events/server/player-kicked';
 export * from './events/server/player-left';
 export * from './events/server/player-update';
 export * from './events/server/update-lobby-answers';
-export * from './managers/lobby-manager';
 export * from './types/questions/multiple-choice';
 export * from './types/questions/short-answer';
 export * from './types/questions/true-false';
