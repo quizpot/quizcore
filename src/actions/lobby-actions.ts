@@ -1,5 +1,6 @@
 import { Lobby, LobbySettings, LobbyStatus, Player } from "../types/lobby";
 import { QuizFile } from "../types/quizfile";
+import { generateUniqueName } from "../util/names/names";
 
 export const LobbyActions = {
   generateCode(): string {
@@ -27,35 +28,41 @@ export const LobbyActions = {
     };
   },
 
-  playerConnected: (lobby: Lobby, player: Player): Lobby => {
-    const isAlreadyIn: boolean = lobby.players.some((p: Player) => p.id === player.id);
+  playerConnected: (lobby: Lobby, id: string, name?: string): Lobby => {
+    const isAlreadyIn: boolean = lobby.players.some((p: Player) => p.id === id);
     if (isAlreadyIn) {
       return {
         ...lobby,
-        players: lobby.players.map((p: Player) => p.id === player.id ? { ...p, isConnected: true } : p)
+        players: lobby.players.map((p: Player) => p.id === id ? { ...p, isConnected: true } : p)
       };
     }
 
     return {
       ...lobby,
-      players: [...lobby.players, player]
+      players: [...lobby.players, { 
+        id, 
+        name: name || generateUniqueName(lobby.players),
+        score: 0, 
+        streak: 0, 
+        isConnected: true 
+      }]
     };
   },
 
-  playerDisconnected: (lobby: Lobby, player: Player): Lobby => {
-    const isAlreadyIn: boolean = lobby.players.some((p: Player) => p.id === player.id);
+  playerDisconnected: (lobby: Lobby, id: string): Lobby => {
+    const isAlreadyIn: boolean = lobby.players.some((p: Player) => p.id === id);
     if (!isAlreadyIn) return lobby;
 
     if (lobby.status === 'waiting') {
       return {
         ...lobby,
-        players: lobby.players.filter((p: Player) => p.id !== player.id)
+        players: lobby.players.filter((p: Player) => p.id !== id)
       };
     }
 
     return {
       ...lobby,
-      players: lobby.players.map((p: Player) => p.id === player.id ? { ...p, isConnected: false } : p)
+      players: lobby.players.map((p: Player) => p.id === id ? { ...p, isConnected: false } : p)
     };
   },
   
