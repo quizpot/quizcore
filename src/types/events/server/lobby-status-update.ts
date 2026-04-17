@@ -1,7 +1,7 @@
 import z from "zod";
-import { LobbyStatus, PlayerSchema } from "../../types/lobby";
-import { SafeQuestionSchema, SlideLayoutSchema } from "../../types/quizfile";
-import { AnswerSchema } from "../../util/validator";
+import { LobbyStatus, PlayerSchema } from "../../lobby";
+import { SafeQuestionSchema, SlideLayoutSchema } from "../../quizfile";
+import { AnswerSchema } from "../../../util/validator";
 
 const WaitingPayload = z.object({ status: z.literal(LobbyStatus.waiting) });
 

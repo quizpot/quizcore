@@ -1,5 +1,5 @@
 import z from "zod";
-import { BaseQuestionSchema } from "../types/quizfile";
+import { BaseQuestionSchema } from "../quiz/base-question";
 
 export const ShortAnswerQuestionSchema = BaseQuestionSchema.extend({
   questionType: z.literal("shortAnswer"),

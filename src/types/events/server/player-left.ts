@@ -1,5 +1,5 @@
 import z from "zod";
-import { PlayerSchema } from "../../types/lobby";
+import { PlayerSchema } from "../../lobby";
 
 export const PlayerLeftSchema = z.object({
   type: z.literal("PLAYER_LEFT"),

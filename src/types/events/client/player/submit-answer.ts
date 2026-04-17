@@ -1,5 +1,5 @@
 import z from "zod";
-import { SubmittedAnswerSchema } from "../../../util/validator";
+import { SubmittedAnswerSchema } from "../../../../util/validator";
 
 export const SubmitAnswerSchema = z.object({
   type: z.literal("SUBMIT_ANSWER"),

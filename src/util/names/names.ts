@@ -1,7 +1,6 @@
 import animals from "./animals.json";
 import additives from "./additives.json";
 import colors from "./colors.json";
-import { Player } from "../../types/lobby";
 
 export const generateName = (): string => {
   const animal = animals[Math.floor(Math.random() * animals.length)];
@@ -11,28 +10,32 @@ export const generateName = (): string => {
   return `${color}${additive}${animal}`;
 };
 
-export const generateUniqueName = (players: Player[]): string => {
-  const maxPossible = animals.length * additives.length * colors.length;
+export const generateUniqueName = (names: Set<string>): string => {
+  const totalColors = colors.length;
+  const totalAdditives = additives.length;
+  const totalAnimals = animals.length;
+  const maxPossible = totalColors * totalAdditives * totalAnimals;
 
-  if (players.length >= maxPossible) {
-    throw new Error("No unique names available");
-  }
+  if (names.size >= maxPossible) throw new Error("No unique names available");
 
-  const existingNames = new Set(players.map((p) => p.name));
-  
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 20; i++) {
     const candidate = generateName();
-    if (!existingNames.has(candidate)) return candidate;
+    if (!names.has(candidate)) return candidate;
   }
 
-  for (const c of colors) {
-    for (const ad of additives) {
-      for (const an of animals) {
-        const candidate = `${c}${ad}${an}`;
-        if (!existingNames.has(candidate)) return candidate;
-      }
-    }
+  const startOffset = Math.floor(Math.random() * maxPossible);
+  
+  for (let i = 0; i < maxPossible; i++) {
+    const currentIndex = (startOffset + i) % maxPossible;
+    
+    const colorIdx = Math.floor(currentIndex / (totalAdditives * totalAnimals));
+    const additiveIdx = Math.floor(currentIndex / totalAnimals) % totalAdditives;
+    const animalIdx = currentIndex % totalAnimals;
+
+    const candidate = `${colors[colorIdx]}${additives[additiveIdx]}${animals[animalIdx]}`;
+    
+    if (!names.has(candidate)) return candidate;
   }
 
-  throw new Error("No unique names available"); // Fallback
+  throw new Error("No unique names available");
 };

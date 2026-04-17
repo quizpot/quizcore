@@ -1,18 +1,17 @@
 import z from "zod";
 import { AnswerSchema } from "../util/validator";
-import { QuizFileSchema, QuizThemeSchema } from "./quizfile";
+import { QuizSchema } from "./quiz";
 
-export enum LobbyStatus {
-  waiting = 'waiting',
-  slide = 'slide',
-  question = 'question',
-  answer = 'answer',
-  answers = 'answers',
-  score = 'score',
-  end = 'end',
-}
+export const LobbyStatusSchema = z.enum([
+  'waiting',
+  'slide',
+  'question',
+  'answer',
+  'score',
+  'end'
+]);
 
-export const LobbyStatusSchema = z.enum(LobbyStatus);
+export type LobbyStatus = z.infer<typeof LobbyStatusSchema>;
 
 export const PlayerSchema = z.object({
   id: z.string(),
@@ -31,15 +30,10 @@ export const LobbySettingsSchema = z.object({
 
 export type LobbySettings = z.infer<typeof LobbySettingsSchema>;
 
-export const LobbySchema = z.object({
+export const LobbyStateSchema = z.object({
   code: z.string().length(6),
   host: z.string(),
-  quiz: QuizFileSchema,
-  quizInfo: z.object({
-    title: z.string(),
-    stepCount: z.number().int().nonnegative(),
-    theme: QuizThemeSchema,
-  }),
+  quiz: QuizSchema,
   players: z.array(PlayerSchema),
   status: LobbyStatusSchema,
   timeoutStartedAt: z.number().nullable(),
@@ -50,4 +44,4 @@ export const LobbySchema = z.object({
   settings: LobbySettingsSchema,
 });
 
-export type Lobby = z.infer<typeof LobbySchema>;
+export type LobbyState = z.infer<typeof LobbyStateSchema>;

@@ -1,6 +1,6 @@
 import z from "zod";
-import { LobbySchema, PlayerSchema } from "../../types/lobby";
-import { AnswerSchema } from "../../util/validator";
+import { LobbySchema, PlayerSchema } from "../../lobby";
+import { AnswerSchema } from "../../../util/validator";
 
 const StrippedLobbySchema = LobbySchema.omit({
   host: true,
