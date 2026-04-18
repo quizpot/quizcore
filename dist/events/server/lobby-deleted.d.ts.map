@@ -1,1 +1,0 @@
-{"version":3,"file":"lobby-deleted.d.ts","sourceRoot":"","sources":["../../../src/events/server/lobby-deleted.ts"],"names":[],"mappings":"AAAA,MAAM,MAAM,YAAY,GAAG;IACzB,IAAI,EAAE,eAAe,CAAC;IACtB,OAAO,EAAE;QAAE,MAAM,EAAE,MAAM,CAAA;KAAE,CAAC;CAC7B,CAAC;AAEF,eAAO,MAAM,uBAAuB,GAAI,QAAQ,MAAM,KAAG,YAGvD,CAAC"}

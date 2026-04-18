@@ -1,1 +1,0 @@
-{"version":3,"file":"player-joined.d.ts","sourceRoot":"","sources":["../../../src/events/server/player-joined.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,MAAM,EAAE,MAAM,mBAAmB,CAAC;AAE3C,MAAM,MAAM,YAAY,GAAG;IACzB,IAAI,EAAE,eAAe,CAAC;IACtB,OAAO,EAAE;QAAE,MAAM,EAAE,MAAM,CAAA;KAAE,CAAC;CAC7B,CAAC;AAEF,eAAO,MAAM,uBAAuB,GAAI,QAAQ,MAAM,KAAG,YAGvD,CAAC"}
