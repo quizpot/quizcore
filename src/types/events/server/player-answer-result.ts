@@ -1,5 +1,5 @@
 import z from "zod";
-import { Player, PlayerSchema } from "../../lobby";
+import { Player, PlayerSchema } from "../../lobby/lobby";
 
 export const PlayerAnswerResultSchema = z.object({
   event: z.literal("PLAYER_ANSWER_RESULT"),

@@ -1,5 +1,5 @@
 import z from "zod";
-import { PlayerSchema } from "../../lobby";
+import { PlayerSchema } from "../../lobby/lobby";
 import { PlayerLobbyStateSchema } from "../../lobby/player-lobby-state";
 import { HostLobbyStateSchema } from "../../lobby/host-lobby-state";
 

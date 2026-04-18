@@ -1,5 +1,47 @@
 import { relations } from 'drizzle-orm';
-import { pgTable, timestamp, boolean, text, index } from 'drizzle-orm/pg-core';
+import { pgTable, timestamp, boolean, text, index, jsonb } from 'drizzle-orm/pg-core';
+import { QuizTheme } from '../types/quiz/theme';
+import { Quiz } from '../types/quiz/quiz';
+
+// App Data
+
+export const quiz = pgTable("quiz", {
+  id: text("id").primaryKey(),
+  title: text("title").notNull(),
+
+  theme: jsonb("theme").$type<QuizTheme>().default({
+    color: "#424242"
+  }).notNull(),
+  quiz: jsonb("quiz").$type<Quiz>().notNull(),
+
+  public: boolean("public").default(false).notNull(),
+
+  ownerId: text("owner_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => /* @__PURE__ */ new Date())
+    .notNull(),
+});
+
+// export const result = pgTable("result", {
+//   id: text("id").primaryKey(),
+  
+//   result: jsonb("result").$type<Result>().notNull(),
+
+//   quizId: text("quiz_id")
+//     .notNull()
+//     .references(() => quiz.id, { onDelete: "cascade" }),
+    
+//   createdAt: timestamp("created_at").defaultNow().notNull(),
+//   updatedAt: timestamp("updated_at")
+//     .defaultNow()
+//     .$onUpdate(() => /* @__PURE__ */ new Date())
+//     .notNull(),
+// });
 
 // Auth Data
 
@@ -86,6 +128,14 @@ export const verification = pgTable(
 export const userRelations = relations(user, ({ many }) => ({
   sessions: many(session),
   accounts: many(account),
+  quizzes: many(quiz),
+}));
+
+export const quizRelations = relations(quiz, ({ one }) => ({
+  owner: one(user, {
+    fields: [quiz.ownerId],
+    references: [user.id],
+  }),
 }));
 
 export const sessionRelations = relations(session, ({ one }) => ({

@@ -1,6 +1,6 @@
 import z from "zod";
-import { LobbyStatusSchema, PlayerSchema } from "../lobby";
-import { QuizInfoSchema } from "../quiz";
+import { LobbyStatusSchema, PlayerSchema } from "./lobby";
+import { QuizInfoSchema } from "../quiz/quiz";
 import { QuestionSchema } from "../quiz/question";
 import { SubmittedAnswerSchema } from "../../util/validator";
 

@@ -1,6 +1,6 @@
 import z from "zod";
-import { LobbyStatusSchema, PlayerSchema } from "../lobby";
-import { QuizInfoSchema } from "../quiz";
+import { LobbyStatusSchema, PlayerSchema } from "./lobby";
+import { QuizInfoSchema } from "../quiz/quiz";
 import { SafeQuestionSchema } from "../quiz/safe-question";
 
 export const PlayerLobbyStateSchema = z.object({

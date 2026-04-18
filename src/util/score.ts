@@ -1,4 +1,4 @@
-import { QuizFile } from "../types/quiz";
+import { QuizFile } from "../types/quiz/quiz";
 import { Question } from "../types/quiz/question";
 import { Answer } from "./validator";
 

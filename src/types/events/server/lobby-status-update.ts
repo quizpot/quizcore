@@ -1,5 +1,5 @@
 import z from "zod";
-import { LobbyStatus, PlayerSchema } from "../../lobby";
+import { LobbyStatus, PlayerSchema } from "../../lobby/lobby";
 import { AnswerSchema } from "../../../util/validator";
 import { SlideLayoutSchema } from "../../quiz/slide";
 import { SafeQuestionSchema } from "../../quiz/safe-question";

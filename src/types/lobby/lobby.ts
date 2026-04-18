@@ -1,6 +1,6 @@
 import z from "zod";
-import { AnswerSchema } from "../util/validator";
-import { QuizSchema } from "./quiz";
+import { AnswerSchema } from "../../util/validator";
+import { QuizSchema } from "../quiz/quiz";
 
 export const LobbyStatusSchema = z.enum([
   'waiting',

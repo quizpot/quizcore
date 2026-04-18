@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { QuizThemeSchema } from "./quiz/theme";
-import { QuizStepSchema } from "./quiz/step";
+import { QuizThemeSchema } from "./theme";
+import { QuizStepSchema } from "./step";
 
 const QuizBase = {
   id: z.uuid(),

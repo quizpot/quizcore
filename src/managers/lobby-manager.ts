@@ -1,7 +1,7 @@
 import { AllServerEvents } from "../types/events/events";
-import { LobbySettings, LobbyState, LobbyStatus, Player } from "../types/lobby";
+import { LobbySettings, LobbyState, LobbyStatus, Player } from "../types/lobby/lobby";
 import { PlayerLobbyState } from "../types/lobby/player-lobby-state";
-import { Quiz } from "../types/quiz";
+import { Quiz } from "../types/quiz/quiz";
 import { isQuestion } from "../util/guards";
 import { sanitizeQuestion } from "../util/sanitizer";
 import { calculateScore } from "../util/score";

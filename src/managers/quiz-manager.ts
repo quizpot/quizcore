@@ -1,4 +1,4 @@
-import { Quiz, QuizFile, QuizFileSchema, QuizSchema } from "../types/quiz";
+import { Quiz, QuizFile, QuizFileSchema, QuizSchema } from "../types/quiz/quiz";
 import { ImageProvider } from "../util/image-provider";
 
 export const QuizManager = {
