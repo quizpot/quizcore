@@ -18,7 +18,8 @@
       "types": "./dist/index.d.cts",
       "import": "./dist/index.mjs",
       "require": "./dist/index.cjs"
-    }
+    },
+    "./db/schema": "./dist/db/schema.ts"
   },
   "devDependencies": {
     "tsdown": "^0.21.7",
