@@ -9,7 +9,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsdown src/index.ts --format esm,cjs --dts --clean && mkdir -p dist/db && cp src/db/schema.ts dist/db/schema.ts && echo Fix db schema imports!",
+    "build": "tsdown src/index.ts --format esm,cjs --dts --clean && node post-build.mjs",
     "watch": "tsdown src/index.ts --format esm,cjs --dts --watch"
   },
   "exports": {
