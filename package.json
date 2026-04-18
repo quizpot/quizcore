@@ -1,6 +1,6 @@
 {
   "name": "@quizpot/quizcore",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "description": "Core library for Quizpot",
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
