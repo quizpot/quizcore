@@ -20,7 +20,7 @@ export * from './types/questions/true-false';
 export * from './types/slides/comparison';
 export * from './types/slides/titleImageTextSlide';
 export * from './types/slides/titleSlide';
-export * from './types/events';
+export * from './types/events/events';
 export * from './types/lobby';
 export * from './types/question';
 export * from './types/quiz';

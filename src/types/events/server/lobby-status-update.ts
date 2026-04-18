@@ -1,13 +1,14 @@
 import z from "zod";
 import { LobbyStatus, PlayerSchema } from "../../lobby";
-import { SafeQuestionSchema, SlideLayoutSchema } from "../../quizfile";
 import { AnswerSchema } from "../../../util/validator";
+import { SlideLayoutSchema } from "../../quiz/slide";
+import { SafeQuestionSchema } from "../../quiz/safe-question";
 
 const WaitingPayload = z.object({ status: z.literal(LobbyStatus.waiting) });
 
 const SlidePayload = z.object({ 
   status: z.literal(LobbyStatus.slide), 
-  slide: SlideLayoutSchema 
+  slide: SlideLayoutSchema
 });
 
 const QuestionPayload = z.object({ 
@@ -25,7 +26,7 @@ const AnswerPayload = z.object({
 
 const AnswersPayload = z.object({ 
   status: z.literal(LobbyStatus.answers), 
-  answers: z.array(AnswerSchema) 
+  answers: z.array(AnswerSchema).optional()
 });
 
 const ScorePayload = z.object({ 
@@ -36,7 +37,8 @@ const ScorePayload = z.object({
 const EndPayload = z.object({ status: z.literal(LobbyStatus.end) });
 
 export const LobbyStatusUpdateSchema = z.object({
-  type: z.literal("LOBBY_STATUS_UPDATE"),
+  event: z.literal("LOBBY_STATUS_UPDATE"),
+  stepNumber: z.number(),
   payload: z.discriminatedUnion("status", [
     WaitingPayload,
     SlidePayload,
@@ -51,10 +53,12 @@ export const LobbyStatusUpdateSchema = z.object({
 export type LobbyStatusUpdate = z.infer<typeof LobbyStatusUpdateSchema>;
 
 export const createLobbyStatusUpdateEvent = (
+  stepNumber: number,
   payload: LobbyStatusUpdate["payload"]
 ): LobbyStatusUpdate => {
   return LobbyStatusUpdateSchema.parse({
-    type: "LOBBY_STATUS_UPDATE",
+    event: "LOBBY_STATUS_UPDATE",
+    stepNumber,
     payload,
   });
 };

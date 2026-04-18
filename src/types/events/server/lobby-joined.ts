@@ -1,41 +1,30 @@
 import z from "zod";
-import { LobbySchema, PlayerSchema } from "../../lobby";
-import { AnswerSchema } from "../../../util/validator";
-
-const StrippedLobbySchema = LobbySchema.omit({
-  host: true,
-  quiz: true,
-  players: true,
-  currentAnswers: true,
-  answers: true,
-});
+import { PlayerSchema } from "../../lobby";
+import { PlayerLobbyStateSchema } from "../../lobby/player-lobby-state";
+import { HostLobbyStateSchema } from "../../lobby/host-lobby-state";
 
 export const LobbyJoinedSchema = z.object({
-  type: z.literal("LOBBY_JOINED"),
-  payload: z.object({
-    lobby: StrippedLobbySchema,
-    me: PlayerSchema.optional(),
-    players: z.array(PlayerSchema).optional(),
-    currentAnswers: z.array(AnswerSchema).optional(),
-    answers: z.array(AnswerSchema).optional(),
-  }),
+  event: z.literal("LOBBY_JOINED"),
+  payload: z.discriminatedUnion("role", [
+    z.object({
+      role: z.literal("host"),
+      state: HostLobbyStateSchema,
+    }),
+    z.object({
+      role: z.literal("player"),
+      me: PlayerSchema,
+      state: PlayerLobbyStateSchema,
+    }),
+  ]),
 });
 
 export type LobbyJoined = z.infer<typeof LobbyJoinedSchema>;
 
 export const createLobbyJoinedEvent = (
-  lobby: z.infer<typeof LobbySchema>, 
-  me: z.infer<typeof PlayerSchema>, 
-  isHost: boolean
+  payload: LobbyJoined["payload"]
 ): LobbyJoined => {
   return LobbyJoinedSchema.parse({
-    type: "LOBBY_JOINED",
-    payload: {
-      lobby,
-      me,
-      players: isHost ? lobby.players : undefined,
-      currentAnswers: isHost ? lobby.currentAnswers : undefined,
-      answers: isHost ? lobby.answers : undefined,
-    }
+    event: "LOBBY_JOINED",
+    payload,
   });
 };

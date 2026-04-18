@@ -2,6 +2,13 @@ import { Quiz, QuizFile, QuizFileSchema, QuizSchema } from "../types/quiz";
 import { ImageProvider } from "../util/image-provider";
 
 export const QuizManager = {
+  /**
+   * Converts a QuizFile into a usable Quiz object.
+   * Uploads any base64 images to the provided storage provider.
+   * @param file - The input QuizFile.
+   * @param storage - The ImageProvider to use for uploads.
+   * @returns A Promise resolving to a Quiz object.
+   */
   toObject: async (file: QuizFile, storage: ImageProvider): Promise<Quiz> => {
     const entries = Object.entries(file.images);
     
@@ -21,6 +28,12 @@ export const QuizManager = {
     });
   },
 
+  /**
+   * Converts a Quiz object back into a QuizFile, downloading images as base64.
+   * @param quiz - The input Quiz object.
+   * @param storage - The ImageProvider to use for downloads.
+   * @returns A Promise resolving to a QuizFile.
+   */
   toFile: async (quiz: Quiz, storage: ImageProvider): Promise<QuizFile> => {
     const entries = Object.entries(quiz.images);
 

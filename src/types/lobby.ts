@@ -7,10 +7,12 @@ export const LobbyStatusSchema = z.enum([
   'slide',
   'question',
   'answer',
+  'answers',
   'score',
   'end'
 ]);
 
+export const LobbyStatus = LobbyStatusSchema.enum;
 export type LobbyStatus = z.infer<typeof LobbyStatusSchema>;
 
 export const PlayerSchema = z.object({

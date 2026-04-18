@@ -8,7 +8,7 @@ export const HostLobbyStateSchema = z.object({
   code: z.string(),
   status: LobbyStatusSchema,
   players: z.array(PlayerSchema),
-  currentStep: z.number().int().nonnegative(),
+  stepNumber: z.number().int().nonnegative(),
   quizInfo: QuizInfoSchema,
   currentQuestion: z.optional(QuestionSchema),
   answers: z.array(SubmittedAnswerSchema),

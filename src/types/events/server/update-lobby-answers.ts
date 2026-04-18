@@ -1,7 +1,7 @@
 import z from "zod";
 
 export const UpdateLobbyAnswersSchema = z.object({
-  type: z.literal("UPDATE_LOBBY_ANSWERS"),
+  event: z.literal("UPDATE_LOBBY_ANSWERS"),
   payload: z.object({
     count: z.number().int().nonnegative(),
   }),
@@ -11,7 +11,7 @@ export type UpdateLobbyAnswers = z.infer<typeof UpdateLobbyAnswersSchema>;
 
 export const createUpdateLobbyAnswersEvent = (count: number): UpdateLobbyAnswers => {
   return UpdateLobbyAnswersSchema.parse({
-    type: "UPDATE_LOBBY_ANSWERS",
+    event: "UPDATE_LOBBY_ANSWERS",
     payload: { count }
   });
 };
