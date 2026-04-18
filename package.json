@@ -1,28 +1,31 @@
 {
   "name": "@quizpot/quizcore",
-  "version": "0.0.2",
+  "version": "0.0.10",
   "description": "Core library for Quizpot",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.cts",
   "files": [
     "dist"
   ],
   "scripts": {
-    "watch": "tsc --watch",
-    "build": "tsc",
-    "prepare": "npm run build"
+    "build": "tsdown src/index.ts --format esm,cjs --dts --clean",
+    "watch": "tsdown src/index.ts --format esm,cjs --dts --watch",
+    "publish": "npm publish --access public"
   },
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.js"
+      "types": "./dist/index.d.cts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
     }
   },
   "devDependencies": {
+    "tsdown": "^0.21.7",
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "uuid": "^13.0.0",
     "drizzle-orm": "^0.45.2",
     "pg": "^8.20.0",
     "zod": "^4.3.6"

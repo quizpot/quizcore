@@ -1,1 +1,0 @@
-{"version":3,"file":"submit-answer.d.ts","sourceRoot":"","sources":["../../../../src/events/client/player/submit-answer.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,eAAe,EAAE,MAAM,yBAAyB,CAAC;AAE1D,MAAM,MAAM,YAAY,GAAG;IACzB,IAAI,EAAE,eAAe,CAAC;IACtB,OAAO,EAAE;QAAE,UAAU,EAAE,eAAe,CAAA;KAAE,CAAC;CAC1C,CAAC;AAEF,eAAO,MAAM,uBAAuB,GAAI,YAAY,eAAe,KAAG,YAGpE,CAAC"}

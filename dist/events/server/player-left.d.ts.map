@@ -1,1 +1,0 @@
-{"version":3,"file":"player-left.d.ts","sourceRoot":"","sources":["../../../src/events/server/player-left.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,MAAM,EAAE,MAAM,mBAAmB,CAAC;AAE3C,MAAM,MAAM,UAAU,GAAG;IACvB,IAAI,EAAE,aAAa,CAAC;IACpB,OAAO,EAAE;QAAE,MAAM,EAAE,MAAM,CAAA;KAAE,CAAC;CAC7B,CAAC;AAEF,eAAO,MAAM,qBAAqB,GAAI,QAAQ,MAAM,KAAG,UAGrD,CAAC"}

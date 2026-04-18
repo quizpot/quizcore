@@ -41,11 +41,11 @@ export const isCorrect = (question: Question, submission: SubmittedAnswer): bool
     return submission.choices.every(index => question.choices[index]?.correct);
   }
 
-  if (isTrueFalse(question) && submission.type === "trueFalse") {
+  if (isTrueFalse(question) && submission.type === "true-false") {
     return question.answer === submission.answer;
   }
 
-  if (isShortAnswer(question) && submission.type === "shortAnswer") {
+  if (isShortAnswer(question) && submission.type === "short-answer") {
     const playerAns = submission.answer.trim().toLowerCase();
     return question.answers.some(ans => ans.trim().toLowerCase() === playerAns);
   }
