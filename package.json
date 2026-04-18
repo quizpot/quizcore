@@ -9,7 +9,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsdown src/index.ts --format esm,cjs --dts --clean",
+    "build": "tsdown src/index.ts --format esm,cjs --dts --clean && mkdir -p dist/db && cp src/db/schema.ts dist/db/schema.ts",
     "watch": "tsdown src/index.ts --format esm,cjs --dts --watch",
     "publish": "npm publish --access public"
   },
