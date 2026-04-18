@@ -1,4 +1,5 @@
-import { Question, SafeQuestion } from "../types/question";
+import { Question } from "../types/quiz/question";
+import { SafeQuestion } from "../types/quiz/safe-question";
 import { isMultipleChoice, isShortAnswer, isTrueFalse } from "./guards";
 
 export const sanitizeQuestion = (question: Question): SafeQuestion => {
