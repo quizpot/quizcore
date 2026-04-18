@@ -32,7 +32,7 @@ export const LobbySettingsSchema = z.object({
 
 export type LobbySettings = z.infer<typeof LobbySettingsSchema>;
 
-export const LobbyStateSchema = z.object({
+export const LobbySchema = z.object({
   code: z.string().length(6),
   host: z.string(),
   quiz: QuizSchema,
@@ -46,4 +46,4 @@ export const LobbyStateSchema = z.object({
   settings: LobbySettingsSchema,
 });
 
-export type LobbyState = z.infer<typeof LobbyStateSchema>;
+export type Lobby = z.infer<typeof LobbySchema>;

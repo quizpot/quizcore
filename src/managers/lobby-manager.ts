@@ -1,5 +1,5 @@
 import { AllServerEvents } from "../types/events/events";
-import { LobbySettings, LobbyState, LobbyStatus, Player } from "../types/lobby/lobby";
+import { LobbySettings, Lobby, LobbyStatus, Player } from "../types/lobby/lobby";
 import { PlayerLobbyState } from "../types/lobby/player-lobby-state";
 import { Quiz } from "../types/quiz/quiz";
 import { isQuestion } from "../util/guards";
@@ -16,12 +16,12 @@ export interface TargetedEvent {
 }
 
 export type JoinResult = 
-  | { type: "SUCCESS"; nextState: LobbyState; player: Player; events: TargetedEvent[] }
-  | { type: "RECONNECT"; nextState: LobbyState; player: Player; events: TargetedEvent[] }
+  | { type: "SUCCESS"; nextState: Lobby; player: Player; events: TargetedEvent[] }
+  | { type: "RECONNECT"; nextState: Lobby; player: Player; events: TargetedEvent[] }
   | { type: "ERROR"; message: string };
 
 export type ManagerUpdate = {
-  state: LobbyState;
+  state: Lobby;
   events: TargetedEvent[];
 };
 
@@ -34,7 +34,7 @@ export const LobbyManager = {
    * @param settings - Configuration settings for the lobby.
    * @returns An initial LobbyState object.
    */
-  create: (code: string, hostId: string, quiz: Quiz, settings: LobbySettings): LobbyState => ({
+  create: (code: string, hostId: string, quiz: Quiz, settings: LobbySettings): Lobby => ({
     code,
     host: hostId,
     quiz: quiz,
@@ -55,7 +55,7 @@ export const LobbyManager = {
    * @param name - The name provided by the player (if applicable).
    * @returns A result indicating success, reconnection, or an error.
    */
-  join: (state: LobbyState, playerId: string, name: string | null): JoinResult => {
+  join: (state: Lobby, playerId: string, name: string | null): JoinResult => {
     const existingPlayer = state.players.find(p => p.id === playerId);
 
     if (existingPlayer) {
@@ -129,7 +129,7 @@ export const LobbyManager = {
    * @param playerId - The identifier of the player who disconnected.
    * @returns An updated state and associated events.
    */
-  disconnect: (state: LobbyState, playerId: string): ManagerUpdate => {
+  disconnect: (state: Lobby, playerId: string): ManagerUpdate => {
     if (state.status === LobbyStatus.waiting) {
       const nextState = {
         ...state,
@@ -162,7 +162,7 @@ export const LobbyManager = {
    * @param playerId - The identifier of the player to kick.
    * @returns An updated state and associated events, or an Error if not allowed.
    */
-  kick: (state: LobbyState, playerId: string): ManagerUpdate | Error => {
+  kick: (state: Lobby, playerId: string): ManagerUpdate | Error => {
     if (state.status !== LobbyStatus.waiting) {
       return new Error("Players can only be kicked while the lobby is waiting");
     }
@@ -190,7 +190,7 @@ export const LobbyManager = {
    * @param reason - The reason for deletion.
    * @returns An updated state (status: end) and a broadcast event.
    */
-  delete: (state: LobbyState, reason: string = "Lobby closed"): ManagerUpdate => {
+  delete: (state: Lobby, reason: string = "Lobby closed"): ManagerUpdate => {
     return {
       state: { ...state, status: LobbyStatus.end },
       events: [{ target: "all", event: { event: "LOBBY_DELETED", payload: { reason } } }]
@@ -202,7 +202,7 @@ export const LobbyManager = {
    * @param state - The current lobby state.
    * @returns An updated state for the first step and associated events, or an Error.
    */
-  start: (state: LobbyState): ManagerUpdate | Error => {
+  start: (state: Lobby): ManagerUpdate | Error => {
     if (state.status !== LobbyStatus.waiting) {
       return new Error("Lobby has already started");
     }
@@ -227,7 +227,7 @@ export const LobbyManager = {
    * @param providedAnswer - The data containing the player's choice.
    * @returns An updated state and events for the host, or an Error.
    */
-  submitAnswer: (state: LobbyState, playerId: string, providedAnswer: any): ManagerUpdate | Error => {
+  submitAnswer: (state: Lobby, playerId: string, providedAnswer: any): ManagerUpdate | Error => {
     if (state.status !== LobbyStatus.question) {
       return new Error("Answers are not being accepted at this time");
     }
@@ -286,7 +286,7 @@ export const LobbyManager = {
    * @param state - The current lobby state.
    * @returns An updated state and broadcast events.
    */
-  nextStep: (state: LobbyState): ManagerUpdate => {
+  nextStep: (state: Lobby): ManagerUpdate => {
     const nextIndex = state.currentStep + 1;
     const totalSteps = state.quiz.steps.length;
 
@@ -310,7 +310,7 @@ export const LobbyManager = {
    * @param index - The 0-based index of the step in the quiz.
    * @returns An updated state and broadcast events.
    */
-  transitionToStep: (state: LobbyState, index: number): ManagerUpdate => {
+  transitionToStep: (state: Lobby, index: number): ManagerUpdate => {
     const step = state.quiz.steps[index];
     const isSlide = step.type === "slide";
     const status = isSlide ? LobbyStatus.slide : LobbyStatus.question;
@@ -353,7 +353,7 @@ export const LobbyManager = {
    * @param duration - Optional time limit for the new status.
    * @returns An updated state and targeted events.
    */
-  setStatus: (state: LobbyState, status: LobbyStatus, duration?: number): ManagerUpdate => {
+  setStatus: (state: Lobby, status: LobbyStatus, duration?: number): ManagerUpdate => {
     const now = Date.now();
     const startTime = (status === LobbyStatus.question || status === LobbyStatus.answer) ? now : null;
 
@@ -419,7 +419,7 @@ export const LobbyManager = {
    * @param playerId - The ID of the player the state is for.
    * @returns A PlayerLobbyState object.
    */
-  getPlayerState: (state: LobbyState, playerId: string): PlayerLobbyState => {
+  getPlayerState: (state: Lobby, playerId: string): PlayerLobbyState => {
     return {
       code: state.code,
       status: state.status,
