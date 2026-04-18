@@ -1,45 +1,47 @@
-import { Answer } from "../util/validator";
-import { QuizFile } from "./quizfile";
-import { QuizTheme } from "./quiztheme";
+import z from "zod";
+import { AnswerSchema } from "../util/validator";
+import { QuizSchema } from "./quiz";
 
-export type Lobby = {
-  code: string;
-  host: string; // Id of the WebSocket connection
-  quiz: QuizFile;
-  quizInfo: {
-    title: string;
-    stepCount: number;
-    theme: QuizTheme;
-  };
-  players: Player[];
-  status: LobbyStatus;
-  timeoutStartedAt: number | null;
-  duration: number | null;
-  currentStep: number;
-  currentAnswers: Answer[];
-  answers: Answer[];
-  settings: LobbySettings;
-}
+export const LobbyStatusSchema = z.enum([
+  'waiting',
+  'slide',
+  'question',
+  'answer',
+  'score',
+  'end'
+]);
 
-export type LobbySettings = {
-  customNames: boolean;
-  displayOnDevice: boolean;
-}
+export type LobbyStatus = z.infer<typeof LobbyStatusSchema>;
 
-export enum LobbyStatus {
-  waiting = 'waiting',
-  slide = 'slide',
-  question = 'question',
-  answer = 'answer',
-  answers = 'answers',
-  score = 'score',
-  end = 'end',
-}
+export const PlayerSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  score: z.number().int().default(0),
+  streak: z.number().int().default(0),
+  isConnected: z.boolean().default(true),
+});
 
-export type Player = {
-  id: string;
-  name: string;
-  score: number;
-  streak: number;
-  isConnected: boolean;
-}
+export type Player = z.infer<typeof PlayerSchema>;
+
+export const LobbySettingsSchema = z.object({
+  customNames: z.boolean(),
+  displayOnDevice: z.boolean(),
+});
+
+export type LobbySettings = z.infer<typeof LobbySettingsSchema>;
+
+export const LobbyStateSchema = z.object({
+  code: z.string().length(6),
+  host: z.string(),
+  quiz: QuizSchema,
+  players: z.array(PlayerSchema),
+  status: LobbyStatusSchema,
+  timeoutStartedAt: z.number().nullable(),
+  duration: z.number().nullable(),
+  currentStep: z.number().int().nonnegative(),
+  currentAnswers: z.array(AnswerSchema),
+  answers: z.array(AnswerSchema),
+  settings: LobbySettingsSchema,
+});
+
+export type LobbyState = z.infer<typeof LobbyStateSchema>;

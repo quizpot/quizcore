@@ -1,19 +1,21 @@
 import z from "zod";
-import { BaseQuestionSchema } from "../question";
+import { BaseQuestionSchema } from "../quiz/base-question";
 
 export const ShortAnswerQuestionSchema = BaseQuestionSchema.extend({
-  type: z.literal("short-answer"),
-  answers: z.array(z.string()).min(1),
+  questionType: z.literal("shortAnswer"),
+  answers: z.array(z.string()),
 });
 
 export type ShortAnswerQuestion = z.infer<typeof ShortAnswerQuestionSchema>;
 
-export const SafeShortAnswerQuestionSchema = ShortAnswerQuestionSchema.omit({ answers: true });
+export const SafeShortAnswerQuestionSchema = ShortAnswerQuestionSchema.omit({
+  answers: true,
+});
 
 export type SafeShortAnswerQuestion = z.infer<typeof SafeShortAnswerQuestionSchema>;
 
 export const ShortAnswerQuestionAnswerSchema = z.object({
-  type: z.literal("short-answer"),
+  type: z.literal("shortAnswer"),
   answer: z.string(),
 });
 

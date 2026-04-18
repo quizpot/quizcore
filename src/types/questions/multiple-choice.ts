@@ -1,5 +1,5 @@
 import z from "zod";
-import { BaseQuestionSchema } from "../question";
+import { BaseQuestionSchema } from "../quiz/base-question";
 
 export const ChoiceSchema = z.object({
   text: z.string(),
@@ -13,24 +13,22 @@ export const SafeChoiceSchema = ChoiceSchema.omit({ correct: true });
 export type SafeChoice = z.infer<typeof SafeChoiceSchema>;
 
 export const MultipleChoiceQuestionSchema = BaseQuestionSchema.extend({
-  type: z.literal("multiple-choice"),
-  choices: z.array(ChoiceSchema).min(2),
+  questionType: z.literal("multipleChoice"),
+  choices: z.array(ChoiceSchema),
   matchAll: z.boolean(),
 });
 
 export type MultipleChoiceQuestion = z.infer<typeof MultipleChoiceQuestionSchema>;
 
-export const SafeMultipleChoiceQuestionSchema = MultipleChoiceQuestionSchema.omit({ 
-  choices: true 
-}).extend({
-  choices: z.array(SafeChoiceSchema).min(2),
+export const SafeMultipleChoiceQuestionSchema = MultipleChoiceQuestionSchema.extend({
+  choices: z.array(SafeChoiceSchema),
 });
 
 export type SafeMultipleChoiceQuestion = z.infer<typeof SafeMultipleChoiceQuestionSchema>;
 
 export const MultipleChoiceQuestionAnswerSchema = z.object({
-  type: z.literal("multiple-choice"),
-  choices: z.array(z.number()).min(1),
+  type: z.literal("multipleChoice"),
+  choices: z.array(z.number()),
 });
 
 export type MultipleChoiceQuestionAnswer = z.infer<typeof MultipleChoiceQuestionAnswerSchema>;

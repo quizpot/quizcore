@@ -1,9 +1,9 @@
-import { Question } from "../types/question";
 import { MultipleChoiceQuestion } from "../types/questions/multiple-choice";
 import { ShortAnswerQuestion } from "../types/questions/short-answer";
 import { TrueFalseQuestion } from "../types/questions/true-false";
-import { QuizStep } from "../types/quizstep";
-import { Slide } from "../types/slide";
+import { Question } from "../types/quiz/question";
+import { SlideLayout } from "../types/quiz/slide";
+import { QuizStep } from "../types/quiz/step";
 
 export const isQuestion = (step: QuizStep): step is { type: "question"; data: Question } => {
   return step.type === "question";

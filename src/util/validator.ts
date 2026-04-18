@@ -1,29 +1,35 @@
-import { isMultipleChoice, isShortAnswer, isTrueFalse } from "../util/guards";
-import { ShortAnswerQuestionAnswer } from "../types/questions/short-answer";
-import { TrueFalseQuestionAnswer } from "../types/questions/true-false";
-import { MultipleChoiceQuestionAnswer } from "../types/questions/multiple-choice";
-import { Question } from "../types/question";
+import { MultipleChoiceQuestionAnswerSchema } from "../types/questions/multiple-choice";
+import { ShortAnswerQuestionAnswerSchema } from "../types/questions/short-answer";
+import { TrueFalseQuestionAnswerSchema } from "../types/questions/true-false";
+import { Question } from "../types/quiz/question";
+import { isMultipleChoice, isShortAnswer, isTrueFalse } from "../util/guards"
+import z from "zod";
 
-export type SubmittedAnswer = 
-  | MultipleChoiceQuestionAnswer
-  | TrueFalseQuestionAnswer 
-  | ShortAnswerQuestionAnswer;
+export const SubmittedAnswerSchema = z.discriminatedUnion("type", [
+  MultipleChoiceQuestionAnswerSchema,
+  TrueFalseQuestionAnswerSchema,
+  ShortAnswerQuestionAnswerSchema,
+]);
 
-export interface Answer {
-  playerId: string;
-  submission: SubmittedAnswer;
-  timeTaken: number;
-  isCorrect: boolean;
-  pointsAwarded: number;
-};
+export type SubmittedAnswer = z.infer<typeof SubmittedAnswerSchema>;
+
+export const AnswerSchema = z.object({
+  playerId: z.uuid(),
+  submission: SubmittedAnswerSchema,
+  timeTaken: z.number().nonnegative(),
+  isCorrect: z.boolean(),
+  pointsAwarded: z.number().min(0),
+});
+
+export type Answer = z.infer<typeof AnswerSchema>;
 
 export const isCorrect = (question: Question, submission: SubmittedAnswer): boolean => {
-  if (isMultipleChoice(question) && submission.type === "multiple-choice") {
-    if (question.matchAll) {
-      const correctIndices = question.choices
-        .map((c, i) => (c.correct ? i : -1))
-        .filter((i) => i !== -1);
+  if (submission.type === "multipleChoice" && isMultipleChoice(question)) {
+    const correctIndices = question.choices
+      .map((c, i) => (c.correct ? i : -1))
+      .filter((i) => i !== -1);
 
+    if (question.matchAll) {
       return (
         submission.choices.length === correctIndices.length &&
         submission.choices.every((index) => correctIndices.includes(index))
@@ -32,10 +38,7 @@ export const isCorrect = (question: Question, submission: SubmittedAnswer): bool
 
     if (submission.choices.length === 0) return false;
 
-    return submission.choices.every(index => {
-      const choice = question.choices[index];
-      return choice ? choice.correct : false;
-    });
+    return submission.choices.every(index => question.choices[index]?.correct);
   }
 
   if (isTrueFalse(question) && submission.type === "true-false") {
