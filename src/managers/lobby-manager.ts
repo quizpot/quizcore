@@ -1,11 +1,12 @@
 import { AllServerEvents } from "../types/events/events";
+import { LobbyStatusUpdate } from "../types/events/server/lobby-status-update";
 import { LobbySettings, Lobby, LobbyStatus, Player } from "../types/lobby/lobby";
 import { PlayerLobbyState } from "../types/lobby/player-lobby-state";
 import { Quiz } from "../types/quiz/quiz";
 import { isQuestion } from "../util/guards";
 import { sanitizeQuestion } from "../util/sanitizer";
 import { calculateScore } from "../util/score";
-import { Answer, isCorrect } from "../util/validator";
+import { Answer, isCorrect, SubmittedAnswer } from "../util/validator";
 
 export type Recipient = "all" | "host" | { playerId: string };
 export type EventTarget = Recipient | Recipient[];
@@ -232,10 +233,10 @@ export const LobbyManager = {
    * Records a player's answer, calculates points, and updates their score/streak.
    * @param state - The current lobby state.
    * @param playerId - The identifier of the player submitting the answer.
-   * @param providedAnswer - The data containing the player's choice.
+   * @param submittedAnswer - The data containing the player's choice.
    * @returns An updated state and events for the host, or an Error.
    */
-  submitAnswer: (state: Lobby, playerId: string, providedAnswer: any): ManagerUpdate | Error => {
+  submitAnswer: (state: Lobby, playerId: string, submittedAnswer: SubmittedAnswer): ManagerUpdate | Error => {
     if (state.hostId === playerId) return new Error("Only a player can submit answers");
 
     if (state.status !== LobbyStatus.question) {
@@ -257,11 +258,11 @@ export const LobbyManager = {
 
     const now = Date.now();
     const timeTaken = now - (state.timeoutStartedAt || now);
-    const correct = isCorrect(currentStep.data, providedAnswer);
+    const correct = isCorrect(currentStep.data, submittedAnswer);
 
     const tempAnswer: Answer = {
       playerId,
-      submission: providedAnswer,
+      submission: submittedAnswer,
       timeTaken,
       isCorrect: correct,
       pointsAwarded: 0,
@@ -338,17 +339,19 @@ export const LobbyManager = {
       duration
     };
 
-    let payload: any = { status };
+    let payload: LobbyStatusUpdate["payload"];
 
     if (status === LobbyStatus.slide && step.type === "slide") {
-      payload.slide = step.data;
+      payload = { status, slide: step.data };
     } else if (status === LobbyStatus.question && isQuestion(step)) {
       payload = {
-        ...payload,
+        status,
         question: sanitizeQuestion(step.data),
         timeoutStartedAt: now,
         duration: duration || 0
       };
+    } else {
+      payload = { status: LobbyStatus.end };
     }
 
     return {
@@ -377,25 +380,28 @@ export const LobbyManager = {
     };
 
     const currentStepNumber = state.currentStep + 1;
-    let payload: any = { status };
-
     const events: TargetedEvent[] = [];
 
     if (status === LobbyStatus.question) {
-      payload.timeoutStartedAt = now;
-      payload.duration = duration ?? 0;
-
+      const step = state.quiz.steps[state.currentStep];
+      const payload: LobbyStatusUpdate["payload"] = {
+        status,
+        question: isQuestion(step) ? sanitizeQuestion(step.data) : ({} as any),
+        timeoutStartedAt: now,
+        duration: duration ?? 0
+      };
       events.push({ target: "all", event: { event: "LOBBY_STATUS_UPDATE", stepNumber: currentStepNumber, payload } });
     } else if (status === LobbyStatus.answer) {
-      payload.timeoutStartedAt = now;
-      payload.duration = duration ?? 0;
-
+      const payload: LobbyStatusUpdate["payload"] = {
+        status,
+        timeoutStartedAt: now,
+        duration: duration ?? 0
+      };
       events.push({ target: "all", event: { event: "LOBBY_STATUS_UPDATE", stepNumber: currentStepNumber, payload } });
     } else if (status === LobbyStatus.score) {
       const sortedPlayers = [...state.players].sort((a, b) => b.score - a.score);
-      payload.leaderboard = sortedPlayers;
+      const payload: LobbyStatusUpdate["payload"] = { status, leaderboard: sortedPlayers };
       nextState.players = sortedPlayers;
-
       events.push({ target: "all", event: { event: "LOBBY_STATUS_UPDATE", stepNumber: currentStepNumber, payload } });
     } else if (status === LobbyStatus.answers) {
       events.push({ target: "all", event: { event: "LOBBY_STATUS_UPDATE", stepNumber: currentStepNumber, payload: { status } } });
@@ -416,7 +422,7 @@ export const LobbyManager = {
         });
       });
     } else {
-      events.push({ target: "all", event: { event: "LOBBY_STATUS_UPDATE", stepNumber: currentStepNumber, payload } });
+      events.push({ target: "all", event: { event: "LOBBY_STATUS_UPDATE", stepNumber: currentStepNumber, payload: { status: status as any } } });
     }
 
     return {
