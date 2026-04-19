@@ -15,6 +15,7 @@ import { PlayerKickedSchema } from "./server/player-kicked";
 import { LobbyDeletedSchema } from "./server/lobby-deleted";
 import { LobbyJoinedSchema } from "./server/lobby-joined";
 import { ServerErrorSchema } from "./server/server-error";
+import { HostStatusSchema } from "./server/host-status";
 
 // Sent to Server
 export const AllClientEventsSchema = z.discriminatedUnion("event", [
@@ -38,6 +39,7 @@ export const AllServerEventsSchema = z.discriminatedUnion("event", [
   LobbyDeletedSchema, // Host & Player event to notice that the lobby has been deleted
   LobbyJoinedSchema, // Player event to sync current status of the lobby
   ServerErrorSchema, // Event to send server errors
+  HostStatusSchema, // Event to notify players of host status
 ]);
 
 export type AllServerEvents = z.infer<typeof AllServerEventsSchema>;
