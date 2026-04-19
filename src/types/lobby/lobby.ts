@@ -28,13 +28,14 @@ export type Player = z.infer<typeof PlayerSchema>;
 export const LobbySettingsSchema = z.object({
   customNames: z.boolean(),
   displayOnDevice: z.boolean(),
+  joinMidGame: z.boolean(),
 });
 
 export type LobbySettings = z.infer<typeof LobbySettingsSchema>;
 
 export const LobbySchema = z.object({
   code: z.string().length(6),
-  host: z.string(),
+  hostId: z.string(),
   quiz: QuizSchema,
   players: z.array(PlayerSchema),
   status: LobbyStatusSchema,

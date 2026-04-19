@@ -36,7 +36,7 @@ export const LobbyManager = {
    */
   create: (code: string, hostId: string, quiz: Quiz, settings: LobbySettings): Lobby => ({
     code,
-    host: hostId,
+    hostId: hostId,
     quiz: quiz,
     status: LobbyStatus.waiting,
     players: [],
@@ -83,6 +83,10 @@ export const LobbyManager = {
           }
         ]
       };
+    }
+
+    if (state.settings.joinMidGame !== true) {
+      return { type: "ERROR", message: "This lobby is already in progress and locked to new players." };
     }
 
     let finalName = name;
@@ -162,7 +166,9 @@ export const LobbyManager = {
    * @param playerId - The identifier of the player to kick.
    * @returns An updated state and associated events, or an Error if not allowed.
    */
-  kick: (state: Lobby, playerId: string): ManagerUpdate | Error => {
+  kick: (state: Lobby, clientId: string, playerId: string): ManagerUpdate | Error => {
+    if (state.hostId !== clientId) return new Error("Only the host can kick players");
+
     if (state.status !== LobbyStatus.waiting) {
       return new Error("Players can only be kicked while the lobby is waiting");
     }
@@ -202,7 +208,9 @@ export const LobbyManager = {
    * @param state - The current lobby state.
    * @returns An updated state for the first step and associated events, or an Error.
    */
-  start: (state: Lobby): ManagerUpdate | Error => {
+  start: (state: Lobby, clientId: string): ManagerUpdate | Error => {
+    if (state.hostId !== clientId) return new Error("Only the host can start the lobby");
+
     if (state.status !== LobbyStatus.waiting) {
       return new Error("Lobby has already started");
     }
@@ -228,6 +236,8 @@ export const LobbyManager = {
    * @returns An updated state and events for the host, or an Error.
    */
   submitAnswer: (state: Lobby, playerId: string, providedAnswer: any): ManagerUpdate | Error => {
+    if (state.hostId === playerId) return new Error("Only a player can submit answers");
+
     if (state.status !== LobbyStatus.question) {
       return new Error("Answers are not being accepted at this time");
     }
@@ -286,7 +296,9 @@ export const LobbyManager = {
    * @param state - The current lobby state.
    * @returns An updated state and broadcast events.
    */
-  nextStep: (state: Lobby): ManagerUpdate => {
+  nextStep: (state: Lobby, clientId: string): ManagerUpdate | Error => {
+    if (state.hostId !== clientId) return new Error("Only the host can advance the lobby");
+
     const nextIndex = state.currentStep + 1;
     const totalSteps = state.quiz.steps.length;
 
