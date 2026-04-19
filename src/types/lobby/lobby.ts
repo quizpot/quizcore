@@ -36,6 +36,7 @@ export type LobbySettings = z.infer<typeof LobbySettingsSchema>;
 export const LobbySchema = z.object({
   code: z.string().length(6),
   hostId: z.string(),
+  hostConnected: z.boolean().default(false),
   quiz: QuizSchema,
   players: z.array(PlayerSchema),
   status: LobbyStatusSchema,
