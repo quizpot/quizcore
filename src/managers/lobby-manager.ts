@@ -9,7 +9,7 @@ import { sanitizeQuestion } from "../util/sanitizer";
 import { calculateScore } from "../util/score";
 import { Answer, isCorrect, SubmittedAnswer } from "../util/validator";
 
-export type Recipient = "all" | "host" | { clientId: string };
+export type Recipient = "all" | "host" | "players" | { clientId: string };
 export type EventTarget = Recipient | Recipient[];
 
 export interface TargetedEvent {
@@ -77,7 +77,8 @@ export const LobbyManager = {
               event: "LOBBY_JOINED", 
               payload: { role: "host", state: LobbyManager.getHostState(nextState) } 
             } 
-          }
+          },
+          { target: "players", event: { event: "HOST_STATUS", payload: { connected: true } } }
         ]
       };
     }
@@ -163,7 +164,7 @@ export const LobbyManager = {
     if (state.hostId === clientId) {
       return {
         state: { ...state, hostConnected: false },
-        events: []
+        events: [{ target: "all", event: { event: "HOST_STATUS", payload: { connected: false } } }]
       };
     }
 
@@ -499,6 +500,7 @@ export const LobbyManager = {
     return {
       code: state.code,
       status: state.status,
+      hostConnected: state.hostConnected,
       me: state.players.find((p) => p.id === clientId)!,
       stepNumber: state.currentStep + 1,
       quizInfo: {

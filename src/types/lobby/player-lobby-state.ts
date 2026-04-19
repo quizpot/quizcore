@@ -7,6 +7,7 @@ export const PlayerLobbyStateSchema = z.object({
   code: z.string(),
   me: PlayerSchema,
   status: LobbyStatusSchema,
+  hostConnected: z.boolean(),
   stepNumber: z.number().int().nonnegative(),
   quizInfo: QuizInfoSchema,
   currentQuestion: z.optional(SafeQuestionSchema),
