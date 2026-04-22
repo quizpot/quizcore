@@ -1,10 +1,10 @@
 import z from "zod";
-import { TitleSlideLayoutSchema } from "../slides/titleSlide";
-import { TitleImageTextSlideLayoutSchema } from "../slides/titleImageTextSlide";
+import { TitleSlideLayoutSchema } from "../slides/title-slide";
+import { ContentSlideSchema } from "../slides/content-slide";
 
 export type SlideLayout = z.infer<typeof SlideLayoutSchema>;
 
 export const SlideLayoutSchema = z.discriminatedUnion("slideType", [
   TitleSlideLayoutSchema,
-  TitleImageTextSlideLayoutSchema
+  ContentSlideSchema
 ]);
