@@ -4,6 +4,7 @@ import { BaseQuestionSchema } from "../quiz/base-question";
 export const TrueFalseQuestionSchema = BaseQuestionSchema.extend({
   questionType: z.literal("trueFalse"),
   answer: z.boolean(),
+  labels: z.array(z.string()),
 });
 
 export type TrueFalseQuestion = z.infer<typeof TrueFalseQuestionSchema>;
