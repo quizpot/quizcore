@@ -9,18 +9,18 @@ export const isQuestion = (step: QuizStep): step is { type: "question"; data: Qu
   return step.type === "question";
 };
 
-export const isSlide = (step: QuizStep): step is { type: "slide"; data: Slide } => {
+export const isSlide = (step: QuizStep): step is { type: "slide"; data: SlideLayout } => {
   return step.type === "slide";
 };
 
 export const isMultipleChoice = (data: Question): data is MultipleChoiceQuestion => {
-  return data.type === "multiple-choice";
+  return data.questionType === "multipleChoice";
 };
 
 export const isTrueFalse = (data: Question): data is TrueFalseQuestion => {
-  return data.type === "true-false";
+  return data.questionType === "trueFalse";
 };
 
 export const isShortAnswer = (data: Question): data is ShortAnswerQuestion => {
-  return data.type === "short-answer";
+  return data.questionType === "shortAnswer";
 };

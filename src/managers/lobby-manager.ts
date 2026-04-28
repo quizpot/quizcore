@@ -540,6 +540,8 @@ export const LobbyManager = {
       theme: state.quiz.theme,
       stepCount: state.quiz.steps.length,
     },
+    hasAnswered: false,
+    wasCorrect: false,
   }),
 
   /**
