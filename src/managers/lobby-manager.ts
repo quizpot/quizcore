@@ -17,7 +17,7 @@ export interface TargetedEvent {
   event: AllServerEvents;
 }
 
-export type JoinResult = 
+export type JoinResult =
   | { type: "SUCCESS"; nextState: Lobby; player?: Player; events: TargetedEvent[] }
   | { type: "RECONNECT"; nextState: Lobby; player?: Player; events: TargetedEvent[] }
   | { type: "ERROR"; message: string };
@@ -30,17 +30,12 @@ export type ManagerUpdate = {
 export const LobbyManager = {
   /**
    * Creates a new initial lobby state.
-   * @param code - The unique lobby access code.
-   * @param hostId - The identifier of the host.
-   * @param quiz - The quiz definition.
-   * @param settings - Configuration settings for the lobby.
-   * @returns An initial LobbyState object.
    */
   create: (code: string, hostId: string, quiz: Quiz, settings: LobbySettings): Lobby => ({
     code,
-    hostId: hostId,
+    hostId,
     hostConnected: false,
-    quiz: quiz,
+    quiz,
     status: LobbyStatus.waiting,
     players: [],
     currentStep: 0,
@@ -48,52 +43,55 @@ export const LobbyManager = {
     currentAnswers: [],
     duration: null,
     timeoutStartedAt: null,
-    settings
+    settings,
   }),
 
   /**
    * Processes a join request, handling both new connections and reconnections.
-   * @param state - The current lobby state.
-   * @param clientId - The unique identifier of the client.
-   * @param name - The name provided by the player (if applicable).
-   * @returns A result indicating success, reconnection, or an error.
+   *
+   * BUG FIX: the `joinMidGame` guard now only applies when the lobby has
+   * already started (`status !== waiting`).  Previously it fired
+   * unconditionally, so new players could *never* join even during the
+   * waiting phase.
    */
   join: (state: Lobby, clientId: string, name: string | null): JoinResult => {
     const isHost = state.hostId === clientId;
 
+    // ── Host (re)connection ──────────────────────────────────────────────
     if (isHost) {
-      const nextState = {
-        ...state,
-        hostConnected: true,
-      };
+      const nextState: Lobby = { ...state, hostConnected: true };
 
       return {
         type: "RECONNECT",
         nextState,
         events: [
-          { 
-            target: { clientId: clientId }, 
-            event: { 
-              event: "LOBBY_JOINED", 
-              payload: { role: "host", state: LobbyManager.getHostState(nextState) } 
-            } 
+          {
+            target: { clientId },
+            event: {
+              event: "LOBBY_JOINED",
+              payload: { role: "host", state: LobbyManager.getHostState(nextState) },
+            },
           },
-          { target: "players", event: { event: "HOST_STATUS", payload: { connected: true } } }
-        ]
+          {
+            target: "players",
+            event: { event: "HOST_STATUS", payload: { connected: true } },
+          },
+        ],
       };
     }
 
-    const existingPlayer = state.players.find(p => p.id === clientId);
+    // ── Existing player reconnection ─────────────────────────────────────
+    const existingPlayer = state.players.find((p) => p.id === clientId);
 
     if (existingPlayer) {
-      const nextState = {
+      const nextState: Lobby = {
         ...state,
-        players: state.players.map(p =>
+        players: state.players.map((p) =>
           p.id === clientId ? { ...p, isConnected: true } : p
         ),
       };
-      
-      const me = { ...existingPlayer, isConnected: true };
+
+      const me: Player = { ...existingPlayer, isConnected: true };
 
       return {
         type: "RECONNECT",
@@ -101,19 +99,29 @@ export const LobbyManager = {
         player: me,
         events: [
           { target: "host", event: { event: "PLAYER_UPDATE", payload: { player: me } } },
-          { 
-            target: { clientId: clientId }, 
-            event: { 
-              event: "LOBBY_JOINED", 
-              payload: { role: "player", me, state: LobbyManager.getPlayerState(nextState, clientId) } 
-            } 
-          }
-        ]
+          {
+            target: { clientId },
+            event: {
+              event: "LOBBY_JOINED",
+              payload: {
+                role: "player",
+                me,
+                state: LobbyManager.getPlayerState(nextState, clientId),
+              },
+            },
+          },
+        ],
       };
     }
 
-    if (state.settings.joinMidGame !== true) {
-      return { type: "ERROR", message: "This lobby is already in progress and locked to new players." };
+    // ── New player joining ───────────────────────────────────────────────
+    // Only block mid-game joins when the lobby has actually started.
+    // During `waiting` state everyone is free to join.
+    if (state.status !== LobbyStatus.waiting && state.settings.joinMidGame !== true) {
+      return {
+        type: "ERROR",
+        message: "This lobby is already in progress and locked to new players.",
+      };
     }
 
     let finalName = name;
@@ -121,7 +129,7 @@ export const LobbyManager = {
       finalName = `Player ${state.players.length + 1}`;
     }
 
-    const nameExists = state.players.some(p => p.name === finalName);
+    const nameExists = state.players.some((p) => p.name === finalName);
     if (nameExists) return { type: "ERROR", message: "Name already taken" };
 
     const newPlayer: Player = {
@@ -129,12 +137,12 @@ export const LobbyManager = {
       name: finalName,
       score: 0,
       streak: 0,
-      isConnected: true
+      isConnected: true,
     };
 
-    const nextState = {
+    const nextState: Lobby = {
       ...state,
-      players: [...state.players, newPlayer]
+      players: [...state.players, newPlayer],
     };
 
     return {
@@ -142,63 +150,70 @@ export const LobbyManager = {
       nextState,
       player: newPlayer,
       events: [
-        { target: "host", event: { event: "PLAYER_JOINED", payload: { player: newPlayer } } },
-        { 
-          target: { clientId: clientId }, 
-          event: { 
-            event: "LOBBY_JOINED", 
-            payload: { role: "player", me: newPlayer, state: LobbyManager.getPlayerState(nextState, clientId) } 
-          } 
-        }
-      ]
+        {
+          target: "host",
+          event: { event: "PLAYER_JOINED", payload: { player: newPlayer } },
+        },
+        {
+          target: { clientId },
+          event: {
+            event: "LOBBY_JOINED",
+            payload: {
+              role: "player",
+              me: newPlayer,
+              state: LobbyManager.getPlayerState(nextState, clientId),
+            },
+          },
+        },
+      ],
     };
   },
 
   /**
-   * Handles a player disconnection, removing them if waiting or marking them offline if mid quiz.
-   * @param state - The current lobby state.
-   * @param clientId - The identifier of the player who disconnected.
-   * @returns An updated state and associated events.
+   * Handles a player disconnection.
    */
   disconnect: (state: Lobby, clientId: string): ManagerUpdate => {
     if (state.hostId === clientId) {
       return {
         state: { ...state, hostConnected: false },
-        events: [{ target: "all", event: { event: "HOST_STATUS", payload: { connected: false } } }]
+        events: [
+          { target: "all", event: { event: "HOST_STATUS", payload: { connected: false } } },
+        ],
       };
     }
 
     if (state.status === LobbyStatus.waiting) {
-      const nextState = {
+      const nextState: Lobby = {
         ...state,
         players: state.players.filter((p) => p.id !== clientId),
       };
-      
+
       return {
         state: nextState,
-        events: [{ target: "host", event: { event: "PLAYER_LEFT", payload: { playerId: clientId } } }]
+        events: [
+          { target: "host", event: { event: "PLAYER_LEFT", payload: { playerId: clientId } } },
+        ],
       };
     }
 
-    const nextState = {
+    const nextState: Lobby = {
       ...state,
       players: state.players.map((p) =>
         p.id === clientId ? { ...p, isConnected: false } : p
       ),
     };
-    const player = nextState.players.find(p => p.id === clientId);
+    const player = nextState.players.find((p) => p.id === clientId);
 
     return {
       state: nextState,
-      events: player ? [{ target: "host", event: { event: "PLAYER_UPDATE", payload: { player } } }] : []
+      events: player
+        ? [{ target: "host", event: { event: "PLAYER_UPDATE", payload: { player } } }]
+        : [],
     };
   },
 
   /**
-   * Forcefully removes a player from a lobby while it is in the waiting state.
-   * @param state - The current lobby state.
-   * @param playerId - The identifier of the player to kick.
-   * @returns An updated state and associated events, or an Error if not allowed.
+   * Forcefully removes a player while the lobby is in waiting state.
    */
   kick: (state: Lobby, clientId: string, playerId: string): ManagerUpdate | Error => {
     if (state.hostId !== clientId) return new Error("Only the host can kick players");
@@ -207,10 +222,10 @@ export const LobbyManager = {
       return new Error("Players can only be kicked while the lobby is waiting");
     }
 
-    const playerExists = state.players.some(p => p.id === playerId);
+    const playerExists = state.players.some((p) => p.id === playerId);
     if (!playerExists) return new Error("Player not found");
 
-    const nextState = {
+    const nextState: Lobby = {
       ...state,
       players: state.players.filter((p) => p.id !== playerId),
     };
@@ -219,62 +234,46 @@ export const LobbyManager = {
       state: nextState,
       events: [
         { target: { clientId: playerId }, event: { event: "PLAYER_KICKED", payload: {} } },
-        { target: "host", event: { event: "PLAYER_LEFT", payload: { playerId } } }
-      ]
+        { target: "host", event: { event: "PLAYER_LEFT", payload: { playerId } } },
+      ],
     };
   },
 
   /**
    * Prepares the state and events for deleting a lobby.
-   * @param state - The current lobby state.
-   * @param reason - The reason for deletion.
-   * @returns An updated state (status: end) and a broadcast event.
    */
-  delete: (state: Lobby, reason: string = "Lobby closed"): ManagerUpdate => {
-    return {
-      state: { ...state, status: LobbyStatus.end },
-      events: [{ target: "all", event: { event: "LOBBY_DELETED", payload: { reason } } }]
-    };
-  },
+  delete: (state: Lobby, reason: string = "Lobby closed"): ManagerUpdate => ({
+    state: { ...state, status: LobbyStatus.end },
+    events: [
+      { target: "all", event: { event: "LOBBY_DELETED", payload: { reason } } },
+    ],
+  }),
 
   /**
    * Starts the quiz from the waiting state.
-   * @param state - The current lobby state.
-   * @returns An updated state for the first step and associated events, or an Error.
    */
   start: (state: Lobby, clientId: string): ManagerUpdate | Error => {
     if (state.hostId !== clientId) return new Error("Only the host can start the lobby");
-
-    if (state.status !== LobbyStatus.waiting) {
-      return new Error("Lobby has already started");
-    }
-
-    if (state.players.length < 1) {
-      return new Error("Lobby must have at least one player to start");
-    }
+    if (state.status !== LobbyStatus.waiting) return new Error("Lobby has already started");
+    if (state.players.length < 1) return new Error("Lobby must have at least one player to start");
 
     const firstStep = state.quiz.steps[0];
-    
-    if (!firstStep) {
-      return new Error("Quiz has no steps");
-    }
+    if (!firstStep) return new Error("Quiz has no steps");
 
     return LobbyManager.transitionToStep(state, 0);
   },
 
   /**
    * Records a player's answer, calculates points, and updates their score/streak.
-   * @param state - The current lobby state.
-   * @param clientId - The identifier of the player submitting the answer.
-   * @param submittedAnswer - The data containing the player's choice.
-   * @returns An updated state and events for the host, or an Error.
    */
-  submitAnswer: (state: Lobby, clientId: string, submittedAnswer: SubmittedAnswer): ManagerUpdate | Error => {
+  submitAnswer: (
+    state: Lobby,
+    clientId: string,
+    submittedAnswer: SubmittedAnswer
+  ): ManagerUpdate | Error => {
     if (state.hostId === clientId) return new Error("Only a player can submit answers");
-
-    if (state.status !== LobbyStatus.question) {
+    if (state.status !== LobbyStatus.answer)
       return new Error("Answers are not being accepted at this time");
-    }
 
     const playerIndex = state.players.findIndex((p) => p.id === clientId);
     if (playerIndex === -1) return new Error("Player not found");
@@ -284,7 +283,6 @@ export const LobbyManager = {
     }
 
     const currentStep = state.quiz.steps[state.currentStep];
-
     if (!currentStep || currentStep.type !== "question") {
       return new Error("Current step is not a question");
     }
@@ -301,7 +299,12 @@ export const LobbyManager = {
       pointsAwarded: 0,
     };
 
-    const { pointsAwarded } = calculateScore(state.players[playerIndex], currentStep.data, tempAnswer, state.quiz);
+    const { pointsAwarded } = calculateScore(
+      state.players[playerIndex],
+      currentStep.data,
+      tempAnswer,
+      state.quiz
+    );
     const newStreak = correct ? state.players[playerIndex].streak + 1 : 0;
 
     const updatedPlayers = state.players.map((p) =>
@@ -312,7 +315,7 @@ export const LobbyManager = {
 
     const answerRecord: Answer = { ...tempAnswer, pointsAwarded };
 
-    const nextState = {
+    const nextState: Lobby = {
       ...state,
       players: updatedPlayers,
       currentAnswers: [...state.currentAnswers, answerRecord],
@@ -321,14 +324,20 @@ export const LobbyManager = {
 
     return {
       state: nextState,
-      events: [{ target: "host", event: { event: "UPDATE_LOBBY_ANSWERS", payload: { count: nextState.currentAnswers.length } } }]
+      events: [
+        {
+          target: "host",
+          event: {
+            event: "UPDATE_LOBBY_ANSWERS",
+            payload: { count: nextState.currentAnswers.length },
+          },
+        },
+      ],
     };
   },
 
   /**
-   * Advances the lobby to the next logical step (slide or question) or ends the game.
-   * @param state - The current lobby state.
-   * @returns An updated state and broadcast events.
+   * Advances the lobby to the next logical step or ends the game.
    */
   nextStep: (state: Lobby, clientId: string): ManagerUpdate | Error => {
     if (state.hostId !== clientId) return new Error("Only the host can advance the lobby");
@@ -339,10 +348,16 @@ export const LobbyManager = {
     if (nextIndex >= totalSteps) {
       return {
         state: { ...state, status: LobbyStatus.end },
-        events: [{ 
-          target: "all", 
-          event: { event: "LOBBY_STATUS_UPDATE", stepNumber: state.currentStep + 1, payload: { status: LobbyStatus.end } } 
-        }]
+        events: [
+          {
+            target: "all",
+            event: {
+              event: "LOBBY_STATUS_UPDATE",
+              stepNumber: state.currentStep + 1,
+              payload: { status: LobbyStatus.end },
+            },
+          },
+        ],
       };
     }
 
@@ -351,25 +366,22 @@ export const LobbyManager = {
 
   /**
    * Internal helper to transition the lobby state to a specific step index.
-   * Handles question sanitization and timer initialization.
-   * @param state - The current lobby state.
-   * @param index - The 0-based index of the step in the quiz.
-   * @returns An updated state and broadcast events.
    */
   transitionToStep: (state: Lobby, index: number): ManagerUpdate => {
     const step = state.quiz.steps[index];
     const isSlide = step.type === "slide";
     const status = isSlide ? LobbyStatus.slide : LobbyStatus.question;
     const now = Date.now();
-    const duration = (status === LobbyStatus.question && isQuestion(step)) ? step.data.timeLimit : null;
+    const duration =
+      status === LobbyStatus.question && isQuestion(step) ? step.data.timeLimit : null;
 
-    const nextState = {
+    const nextState: Lobby = {
       ...state,
       currentStep: index,
-      status: status,
+      status,
       currentAnswers: [],
       timeoutStartedAt: isSlide ? null : now,
-      duration
+      duration,
     };
 
     let payload: LobbyStatusUpdate["payload"];
@@ -381,7 +393,7 @@ export const LobbyManager = {
         status,
         question: sanitizeQuestion(step.data),
         timeoutStartedAt: now,
-        duration: duration || 0
+        duration: duration || 0,
       };
     } else {
       payload = { status: LobbyStatus.end };
@@ -389,27 +401,25 @@ export const LobbyManager = {
 
     return {
       state: nextState,
-      events: [{ target: "all", event: { event: "LOBBY_STATUS_UPDATE", stepNumber: index + 1, payload } }]
+      events: [
+        { target: "all", event: { event: "LOBBY_STATUS_UPDATE", stepNumber: index + 1, payload } },
+      ],
     };
   },
 
   /**
-   * Manually sets the status of the lobby (e.g., revealing answers or showing scores).
-   * Handles sensitive data stripping and individual player result notification.
-   * @param state - The current lobby state.
-   * @param status - The target LobbyStatus.
-   * @param duration - Optional time limit for the new status.
-   * @returns An updated state and targeted events.
+   * Manually sets the status of the lobby.
    */
   setStatus: (state: Lobby, status: LobbyStatus, duration?: number): ManagerUpdate => {
     const now = Date.now();
-    const startTime = (status === LobbyStatus.question || status === LobbyStatus.answer) ? now : null;
+    const startTime =
+      status === LobbyStatus.question || status === LobbyStatus.answer ? now : null;
 
-    const nextState = {
+    const nextState: Lobby = {
       ...state,
       status,
       timeoutStartedAt: startTime,
-      duration: duration ?? null
+      duration: duration ?? null,
     };
 
     const currentStepNumber = state.currentStep + 1;
@@ -421,57 +431,82 @@ export const LobbyManager = {
         status,
         question: isQuestion(step) ? sanitizeQuestion(step.data) : ({} as any),
         timeoutStartedAt: now,
-        duration: duration ?? 0
+        duration: duration ?? 0,
       };
-      events.push({ target: "all", event: { event: "LOBBY_STATUS_UPDATE", stepNumber: currentStepNumber, payload } });
+      events.push({
+        target: "all",
+        event: { event: "LOBBY_STATUS_UPDATE", stepNumber: currentStepNumber, payload },
+      });
     } else if (status === LobbyStatus.answer) {
       const payload: LobbyStatusUpdate["payload"] = {
         status,
         timeoutStartedAt: now,
-        duration: duration ?? 0
+        duration: duration ?? 0,
       };
-      events.push({ target: "all", event: { event: "LOBBY_STATUS_UPDATE", stepNumber: currentStepNumber, payload } });
+      events.push({
+        target: "all",
+        event: { event: "LOBBY_STATUS_UPDATE", stepNumber: currentStepNumber, payload },
+      });
     } else if (status === LobbyStatus.score) {
       const sortedPlayers = [...state.players].sort((a, b) => b.score - a.score);
       const payload: LobbyStatusUpdate["payload"] = { status, leaderboard: sortedPlayers };
       nextState.players = sortedPlayers;
-      events.push({ target: "all", event: { event: "LOBBY_STATUS_UPDATE", stepNumber: currentStepNumber, payload } });
+      events.push({
+        target: "all",
+        event: { event: "LOBBY_STATUS_UPDATE", stepNumber: currentStepNumber, payload },
+      });
     } else if (status === LobbyStatus.answers) {
-      events.push({ target: "all", event: { event: "LOBBY_STATUS_UPDATE", stepNumber: currentStepNumber, payload: { status } } });
-      
-      events.push({ 
-        target: "host", 
-        event: { event: "LOBBY_STATUS_UPDATE", stepNumber: currentStepNumber, payload: { status, answers: state.currentAnswers } } 
+      // Broadcast status change to everyone (no sensitive data)
+      events.push({
+        target: "all",
+        event: {
+          event: "LOBBY_STATUS_UPDATE",
+          stepNumber: currentStepNumber,
+          payload: { status },
+        },
       });
 
-      state.players.forEach(p => {
-        const answer = state.currentAnswers.find(a => a.playerId === p.id);
+      // Send full answer details only to the host
+      events.push({
+        target: "host",
+        event: {
+          event: "LOBBY_STATUS_UPDATE",
+          stepNumber: currentStepNumber,
+          payload: { status, answers: state.currentAnswers },
+        },
+      });
+
+      // Notify each player of their individual result
+      state.players.forEach((p) => {
+        const answer = state.currentAnswers.find((a) => a.playerId === p.id);
         events.push({
           target: { clientId: p.id },
           event: {
             event: "PLAYER_ANSWER_RESULT",
-            payload: { isCorrect: answer?.isCorrect ?? false, player: p }
-          }
+            payload: { isCorrect: answer?.isCorrect ?? false, player: p },
+          },
         });
       });
     } else {
-      events.push({ target: "all", event: { event: "LOBBY_STATUS_UPDATE", stepNumber: currentStepNumber, payload: { status: status as any } } });
+      events.push({
+        target: "all",
+        event: {
+          event: "LOBBY_STATUS_UPDATE",
+          stepNumber: currentStepNumber,
+          payload: { status: status as any },
+        },
+      });
     }
 
-    return {
-      state: nextState,
-      events
-    };
+    return { state: nextState, events };
   },
 
   /**
-   * Generates a full version of the lobby state suitable for the host client.
-   * @param state - The current lobby state.
-   * @returns A HostLobbyState object.
+   * Generates a full lobby state for the host client.
    */
   getHostState: (state: Lobby): HostLobbyState => {
     const step = state.quiz.steps[state.currentStep];
-    
+
     return {
       code: state.code,
       status: state.status,
@@ -480,42 +515,36 @@ export const LobbyManager = {
       quizInfo: {
         title: state.quiz.title,
         theme: state.quiz.theme,
-        stepCount: state.quiz.steps.length
+        stepCount: state.quiz.steps.length,
       },
-      currentQuestion: (state.status === LobbyStatus.question && isQuestion(step)) 
-        ? step.data 
-        : undefined,
+      currentQuestion:
+        state.status === LobbyStatus.question && isQuestion(step) ? step.data : undefined,
       answers: state.currentAnswers as any,
-      timeout: state.timeoutStartedAt ? new Date(state.timeoutStartedAt).toISOString() : undefined
+      timeout: state.timeoutStartedAt
+        ? new Date(state.timeoutStartedAt).toISOString()
+        : undefined,
     };
   },
 
   /**
-   * Generates a sanitized version of the lobby state suitable for a specific player client.
-   * @param state - The current lobby state.
-   * @param clientId - The ID of the player the state is for.
-   * @returns A PlayerLobbyState object.
+   * Generates a sanitized lobby state for a specific player client.
    */
-  getPlayerState: (state: Lobby, clientId: string): PlayerLobbyState => {
-    return {
-      code: state.code,
-      status: state.status,
-      hostConnected: state.hostConnected,
-      me: state.players.find((p) => p.id === clientId)!,
-      stepNumber: state.currentStep + 1,
-      quizInfo: {
-        title: state.quiz.title,
-        theme: state.quiz.theme,
-        stepCount: state.quiz.steps.length
-      },
-    };
-  },
+  getPlayerState: (state: Lobby, clientId: string): PlayerLobbyState => ({
+    code: state.code,
+    status: state.status,
+    hostConnected: state.hostConnected,
+    me: state.players.find((p) => p.id === clientId)!,
+    stepNumber: state.currentStep + 1,
+    quizInfo: {
+      title: state.quiz.title,
+      theme: state.quiz.theme,
+      stepCount: state.quiz.steps.length,
+    },
+  }),
 
   /**
-   * Generates a unique lobby code.
-   * @returns A unique lobby code.
+   * Generates a unique 6-digit lobby code.
    */
-  generateCode: (): string => {
-    return Math.floor(Math.random() * 900000 + 100000).toString();
-  },
+  generateCode: (): string =>
+    Math.floor(Math.random() * 900000 + 100000).toString(),
 };
