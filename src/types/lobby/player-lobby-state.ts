@@ -12,6 +12,8 @@ export const PlayerLobbyStateSchema = z.object({
   quizInfo: QuizInfoSchema,
   currentQuestion: z.optional(SafeQuestionSchema),
   timeout: z.optional(z.iso.datetime()),
+  hasAnswered: z.boolean(),
+  wasCorrect: z.boolean(),
 });
 
 export type PlayerLobbyState = z.infer<typeof PlayerLobbyStateSchema>;
