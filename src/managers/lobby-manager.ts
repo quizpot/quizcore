@@ -366,6 +366,12 @@ export const LobbyManager = {
 
   /**
    * Internal helper to transition the lobby state to a specific step index.
+   *
+   * For question steps, the broadcast is split so the host receives the full
+   * QuestionData (including `correct` on each choice) while players only
+   * receive the sanitized version.  This ensures the host can highlight
+   * correct answers during the review phase without leaking answers to
+   * players.
    */
   transitionToStep: (state: Lobby, index: number): ManagerUpdate => {
     const step = state.quiz.steps[index];
@@ -384,17 +390,46 @@ export const LobbyManager = {
       duration,
     };
 
+    // Question steps: split broadcast so host gets full data, players get sanitized.
+    if (status === LobbyStatus.question && isQuestion(step)) {
+      return {
+        state: nextState,
+        events: [
+          {
+            target: "players",
+            event: {
+              event: "LOBBY_STATUS_UPDATE",
+              stepNumber: index + 1,
+              payload: {
+                status,
+                question: sanitizeQuestion(step.data),
+                timeoutStartedAt: now,
+                duration: duration || 0,
+              },
+            },
+          },
+          {
+            target: "host",
+            event: {
+              event: "LOBBY_STATUS_UPDATE",
+              stepNumber: index + 1,
+              payload: {
+                status,
+                question: step.data,
+                timeoutStartedAt: now,
+                duration: duration || 0,
+              },
+            },
+          },
+        ],
+      };
+    }
+
+    // Slide steps and any other non-question steps can broadcast to everyone.
     let payload: LobbyStatusUpdate["payload"];
 
     if (status === LobbyStatus.slide && step.type === "slide") {
       payload = { status, slide: step.data };
-    } else if (status === LobbyStatus.question && isQuestion(step)) {
-      payload = {
-        status,
-        question: sanitizeQuestion(step.data),
-        timeoutStartedAt: now,
-        duration: duration || 0,
-      };
     } else {
       payload = { status: LobbyStatus.end };
     }
@@ -409,6 +444,10 @@ export const LobbyManager = {
 
   /**
    * Manually sets the status of the lobby.
+   *
+   * For the `question` branch, the broadcast is split so the host receives
+   * full QuestionData while players receive the sanitized copy — same
+   * reasoning as `transitionToStep`.
    */
   setStatus: (state: Lobby, status: LobbyStatus, duration?: number): ManagerUpdate => {
     const now = Date.now();
@@ -427,15 +466,35 @@ export const LobbyManager = {
 
     if (status === LobbyStatus.question) {
       const step = state.quiz.steps[state.currentStep];
-      const payload: LobbyStatusUpdate["payload"] = {
-        status,
-        question: isQuestion(step) ? sanitizeQuestion(step.data) : ({} as any),
-        timeoutStartedAt: now,
-        duration: duration ?? 0,
-      };
+
+      // Players receive sanitized question (no `correct` on choices).
       events.push({
-        target: "all",
-        event: { event: "LOBBY_STATUS_UPDATE", stepNumber: currentStepNumber, payload },
+        target: "players",
+        event: {
+          event: "LOBBY_STATUS_UPDATE",
+          stepNumber: currentStepNumber,
+          payload: {
+            status,
+            question: isQuestion(step) ? sanitizeQuestion(step.data) : ({} as any),
+            timeoutStartedAt: now,
+            duration: duration ?? 0,
+          },
+        },
+      });
+
+      // Host receives full question data so correct answers are available.
+      events.push({
+        target: "host",
+        event: {
+          event: "LOBBY_STATUS_UPDATE",
+          stepNumber: currentStepNumber,
+          payload: {
+            status,
+            question: isQuestion(step) ? step.data : ({} as any),
+            timeoutStartedAt: now,
+            duration: duration ?? 0,
+          },
+        },
       });
     } else if (status === LobbyStatus.answer) {
       const payload: LobbyStatusUpdate["payload"] = {
@@ -517,8 +576,7 @@ export const LobbyManager = {
         theme: state.quiz.theme,
         stepCount: state.quiz.steps.length,
       },
-      currentQuestion:
-        state.status === LobbyStatus.question && isQuestion(step) ? step.data : undefined,
+      currentStep: step,
       answers: state.currentAnswers as any,
       timeout: state.timeoutStartedAt
         ? new Date(state.timeoutStartedAt).toISOString()
