@@ -392,6 +392,12 @@ export const LobbyManager = {
 
     // Question steps: split broadcast so host gets full data, players get sanitized.
     if (status === LobbyStatus.question && isQuestion(step)) {
+      let sanitizedQuestion = sanitizeQuestion(step.data)
+
+      if (sanitizedQuestion.imageHash) {
+        sanitizedQuestion.imageHash = state.quiz.images[sanitizedQuestion.imageHash]
+      }
+
       return {
         state: nextState,
         events: [
@@ -429,6 +435,12 @@ export const LobbyManager = {
     let payload: LobbyStatusUpdate["payload"];
 
     if (status === LobbyStatus.slide && step.type === "slide") {
+      const slide = step.data
+      
+      if (slide.slideType === "content" && slide.imageHash) {
+        slide.imageHash = state.quiz.images[slide.imageHash]
+      }
+
       payload = { status, slide: step.data };
     } else {
       payload = { status: LobbyStatus.end };
