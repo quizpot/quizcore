@@ -365,6 +365,41 @@ export const LobbyManager = {
   },
 
   /**
+   * Advances the lobby to the next logical STATUS within the current step,
+   * or moves to the next step once all statuses are exhausted.
+   *
+   * Flow for a question step: question → answer → answers → score → (next step)
+   * Flow for a slide step:    slide → (next step)
+   */
+  advanceState: (state: Lobby, clientId: string): ManagerUpdate | Error => {
+    if (state.hostId !== clientId) return new Error("Only the host can advance the lobby")
+
+    switch (state.status) {
+      case LobbyStatus.question:
+        return LobbyManager.setStatus(state, LobbyStatus.answer, 
+          (() => {
+            const step = state.quiz.steps[state.currentStep]
+            return isQuestion(step) ? step.data.timeLimit : undefined
+          })()
+        )
+
+      case LobbyStatus.answer:
+        return LobbyManager.setStatus(state, LobbyStatus.answers)
+
+      case LobbyStatus.answers:
+        return LobbyManager.setStatus(state, LobbyStatus.score)
+
+      // After score (leaderboard) or a slide — move to the next step
+      case LobbyStatus.score:
+      case LobbyStatus.slide:
+        return LobbyManager.nextStep(state, clientId)
+
+      default:
+        return new Error(`Cannot advance from status: ${state.status}`)
+    }
+  },
+
+  /**
    * Internal helper to transition the lobby state to a specific step index.
    *
    * For question steps, the broadcast is split so the host receives the full
