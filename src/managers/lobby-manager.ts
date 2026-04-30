@@ -398,6 +398,12 @@ export const LobbyManager = {
         sanitizedQuestion.imageHash = state.quiz.images[sanitizedQuestion.imageHash]
       }
 
+      let question = step.data
+
+      if (question.imageHash) {
+        question.imageHash = state.quiz.images[question.imageHash]
+      }
+
       return {
         state: nextState,
         events: [
@@ -408,7 +414,7 @@ export const LobbyManager = {
               stepNumber: index + 1,
               payload: {
                 status,
-                question: sanitizeQuestion(step.data),
+                question: sanitizedQuestion,
                 timeoutStartedAt: now,
                 duration: duration || 0,
               },
@@ -421,7 +427,7 @@ export const LobbyManager = {
               stepNumber: index + 1,
               payload: {
                 status,
-                question: step.data,
+                question: question,
                 timeoutStartedAt: now,
                 duration: duration || 0,
               },
