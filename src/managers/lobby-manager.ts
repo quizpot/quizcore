@@ -589,7 +589,7 @@ export const LobbyManager = {
         stepCount: state.quiz.steps.length,
       },
       currentStep: step,
-      answers: state.currentAnswers as any,
+      answers: state.currentAnswers,
       timeout: state.timeoutStartedAt
         ? new Date(state.timeoutStartedAt).toISOString()
         : undefined,

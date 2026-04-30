@@ -1,7 +1,7 @@
 import z from "zod";
 import { LobbyStatusSchema, PlayerSchema } from "./lobby";
 import { QuizInfoSchema } from "../quiz/quiz";
-import { SubmittedAnswerSchema } from "../../util/validator";
+import { AnswerSchema } from "../../util/validator";
 import { QuizStepSchema } from "../quiz/step";
 
 export const HostLobbyStateSchema = z.object({
@@ -11,7 +11,7 @@ export const HostLobbyStateSchema = z.object({
   stepNumber: z.number().int().nonnegative(),
   quizInfo: QuizInfoSchema,
   currentStep: z.optional(QuizStepSchema),
-  answers: z.array(SubmittedAnswerSchema),
+  answers: z.array(AnswerSchema),
   timeout: z.optional(z.iso.datetime()),
 });
 
