@@ -617,6 +617,12 @@ export const LobbyManager = {
   getHostState: (state: Lobby): HostLobbyState => {
     const step = state.quiz.steps[state.currentStep];
 
+    let background = state.quiz.theme.background;
+
+    if (background) {
+      background = state.quiz.images[background];
+    }
+
     return {
       code: state.code,
       status: state.status,
@@ -624,7 +630,10 @@ export const LobbyManager = {
       stepNumber: state.currentStep + 1,
       quizInfo: {
         title: state.quiz.title,
-        theme: state.quiz.theme,
+        theme: {
+          ...state.quiz.theme,
+          background,
+        },
         stepCount: state.quiz.steps.length,
       },
       lobbySettings: state.settings,
@@ -639,21 +648,32 @@ export const LobbyManager = {
   /**
    * Generates a sanitized lobby state for a specific player client.
    */
-  getPlayerState: (state: Lobby, clientId: string): PlayerLobbyState => ({
-    code: state.code,
-    status: state.status,
-    hostConnected: state.hostConnected,
-    me: state.players.find((p) => p.id === clientId)!,
-    stepNumber: state.currentStep + 1,
-    quizInfo: {
-      title: state.quiz.title,
-      theme: state.quiz.theme,
-      stepCount: state.quiz.steps.length,
-    },
-    lobbySettings: state.settings,
-    hasAnswered: false,
-    wasCorrect: false,
-  }),
+  getPlayerState: (state: Lobby, clientId: string): PlayerLobbyState => {
+    let background = state.quiz.theme.background;
+
+    if (background) {
+      background = state.quiz.images[background];
+    }
+    
+    return {
+      code: state.code,
+      status: state.status,
+      hostConnected: state.hostConnected,
+      me: state.players.find((p) => p.id === clientId)!,
+      stepNumber: state.currentStep + 1,
+      quizInfo: {
+        title: state.quiz.title,
+        theme: {
+          ...state.quiz.theme,
+          background,
+        },
+        stepCount: state.quiz.steps.length,
+      },
+      lobbySettings: state.settings,
+      hasAnswered: false,
+      wasCorrect: false,
+    }
+  },
 
   /**
    * Generates a unique 6-digit lobby code.
