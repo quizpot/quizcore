@@ -1,5 +1,5 @@
 import z from "zod";
-import { LobbyStatusSchema, PlayerSchema } from "./lobby";
+import { LobbySettingsSchema, LobbyStatusSchema, PlayerSchema } from "./lobby";
 import { QuizInfoSchema } from "../quiz/quiz";
 import { SafeQuizStepSchema } from "../quiz/step";
 
@@ -14,6 +14,7 @@ export const PlayerLobbyStateSchema = z.object({
   timeout: z.optional(z.iso.datetime()),
   hasAnswered: z.boolean(),
   wasCorrect: z.boolean(),
+  lobbySettings: LobbySettingsSchema
 });
 
 export type PlayerLobbyState = z.infer<typeof PlayerLobbyStateSchema>;

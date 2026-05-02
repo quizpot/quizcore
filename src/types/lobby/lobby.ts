@@ -19,6 +19,7 @@ export const PlayerSchema = z.object({
   id: z.string(),
   name: z.string(),
   score: z.number().int().default(0),
+  position: z.number().int(),
   streak: z.number().int().default(0),
   isConnected: z.boolean().default(true),
 });
@@ -26,9 +27,14 @@ export const PlayerSchema = z.object({
 export type Player = z.infer<typeof PlayerSchema>;
 
 export const LobbySettingsSchema = z.object({
-  customNames: z.boolean(),
-  displayOnDevice: z.boolean(),
-  joinMidGame: z.boolean(),
+  customNames: z.boolean().default(false),
+  displayOnDevice: z.boolean().default(false),
+  joinMidGame: z.boolean().default(true),
+  showLink: z.boolean().default(true),
+  playerLimit: z.object({
+    enabled: z.boolean().default(false),
+    limit: z.number().int().default(20),
+  }),
 });
 
 export type LobbySettings = z.infer<typeof LobbySettingsSchema>;
