@@ -124,10 +124,7 @@ export const LobbyManager = {
       };
     }
 
-    let finalName = name;
-    if (!state.settings.customNames || !finalName) {
-      finalName = `Player ${state.players.length + 1}`;
-    }
+    const finalName = name || `Player ${state.players.length + 1}`;
 
     const nameExists = state.players.some((p) => p.name === finalName);
     if (nameExists) return { type: "ERROR", message: "Name already taken" };
