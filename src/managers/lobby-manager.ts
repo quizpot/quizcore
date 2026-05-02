@@ -132,6 +132,7 @@ export const LobbyManager = {
     const newPlayer: Player = {
       id: clientId,
       name: finalName,
+      position: state.players.length + 1,
       score: 0,
       streak: 0,
       isConnected: true,
@@ -626,6 +627,7 @@ export const LobbyManager = {
         theme: state.quiz.theme,
         stepCount: state.quiz.steps.length,
       },
+      lobbySettings: state.settings,
       currentStep: step,
       answers: state.currentAnswers,
       timeout: state.timeoutStartedAt
@@ -648,6 +650,7 @@ export const LobbyManager = {
       theme: state.quiz.theme,
       stepCount: state.quiz.steps.length,
     },
+    lobbySettings: state.settings,
     hasAnswered: false,
     wasCorrect: false,
   }),

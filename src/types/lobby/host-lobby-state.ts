@@ -1,5 +1,5 @@
 import z from "zod";
-import { LobbyStatusSchema, PlayerSchema } from "./lobby";
+import { LobbySettingsSchema, LobbyStatusSchema, PlayerSchema } from "./lobby";
 import { QuizInfoSchema } from "../quiz/quiz";
 import { AnswerSchema } from "../../util/validator";
 import { QuizStepSchema } from "../quiz/step";
@@ -12,6 +12,7 @@ export const HostLobbyStateSchema = z.object({
   quizInfo: QuizInfoSchema,
   currentStep: z.optional(QuizStepSchema),
   answers: z.array(AnswerSchema),
+  lobbySettings: LobbySettingsSchema,
   timeout: z.optional(z.iso.datetime()),
 });
 
