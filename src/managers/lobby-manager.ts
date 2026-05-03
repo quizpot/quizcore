@@ -654,6 +654,8 @@ export const LobbyManager = {
     if (background) {
       background = state.quiz.images[background];
     }
+
+    const step = state.quiz.steps[state.currentStep];
     
     return {
       code: state.code,
@@ -669,6 +671,8 @@ export const LobbyManager = {
         },
         stepCount: state.quiz.steps.length,
       },
+      currentStep: step,
+      timeout: state.timeoutStartedAt ? state.timeoutStartedAt.toString() : undefined,
       lobbySettings: state.settings,
       hasAnswered: false,
       wasCorrect: false,
