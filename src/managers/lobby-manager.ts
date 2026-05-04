@@ -38,6 +38,7 @@ export const LobbyManager = {
     quiz,
     status: LobbyStatus.waiting,
     players: [],
+    results: [],
     currentStep: 0,
     answers: [],
     currentAnswers: [],
@@ -345,7 +346,11 @@ export const LobbyManager = {
 
     if (nextIndex >= totalSteps) {
       return {
-        state: { ...state, status: LobbyStatus.end },
+        state: {
+          ...state,
+          status: LobbyStatus.end,
+          results: [...state.results, state.currentAnswers],
+        },
         events: [
           {
             target: "all",
@@ -414,6 +419,9 @@ export const LobbyManager = {
     const duration =
       status === LobbyStatus.question && isQuestion(step) ? step.data.timeLimit : null;
 
+    const updatedResults =
+      index > 0 ? [...state.results, state.currentAnswers] : state.results;
+
     const nextState: Lobby = {
       ...state,
       currentStep: index,
@@ -421,6 +429,7 @@ export const LobbyManager = {
       currentAnswers: [],
       timeoutStartedAt: isSlide ? null : now,
       duration,
+      results: updatedResults,
     };
 
     // Question steps: split broadcast so host gets full data, players get sanitized.

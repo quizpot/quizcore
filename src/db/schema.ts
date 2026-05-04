@@ -2,6 +2,7 @@ import { relations } from 'drizzle-orm';
 import { pgTable, timestamp, boolean, text, index, jsonb } from 'drizzle-orm/pg-core';
 import { QuizTheme } from '../types/quiz/theme';
 import { Quiz } from '../types/quiz/quiz';
+import { QuizResult } from '../types/quiz/result';
 
 // App Data
 
@@ -27,21 +28,21 @@ export const quiz = pgTable("quiz", {
     .notNull(),
 });
 
-// export const result = pgTable("result", {
-//   id: text("id").primaryKey(),
+export const result = pgTable("result", {
+  id: text("id").primaryKey(),
   
-//   result: jsonb("result").$type<Result>().notNull(),
+  result: jsonb("result").$type<QuizResult>().notNull(),
 
-//   quizId: text("quiz_id")
-//     .notNull()
-//     .references(() => quiz.id, { onDelete: "cascade" }),
+  quizId: text("quiz_id")
+    .notNull()
+    .references(() => quiz.id, { onDelete: "cascade" }),
     
-//   createdAt: timestamp("created_at").defaultNow().notNull(),
-//   updatedAt: timestamp("updated_at")
-//     .defaultNow()
-//     .$onUpdate(() => /* @__PURE__ */ new Date())
-//     .notNull(),
-// });
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => /* @__PURE__ */ new Date())
+    .notNull(),
+});
 
 // Auth Data
 

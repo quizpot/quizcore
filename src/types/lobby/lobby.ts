@@ -51,6 +51,7 @@ export const LobbySchema = z.object({
   currentStep: z.number().int().nonnegative(),
   currentAnswers: z.array(AnswerSchema),
   answers: z.array(AnswerSchema),
+  results: z.array(z.array(AnswerSchema)),
   settings: LobbySettingsSchema,
 });
 
