@@ -33,10 +33,10 @@ export const result = pgTable("result", {
   
   result: jsonb("result").$type<QuizResult>().notNull(),
 
-  quizId: text("quiz_id")
+  ownerId: text("owner_id")
     .notNull()
-    .references(() => quiz.id, { onDelete: "cascade" }),
-    
+    .references(() => user.id, { onDelete: "cascade" }),
+
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
@@ -130,11 +130,19 @@ export const userRelations = relations(user, ({ many }) => ({
   sessions: many(session),
   accounts: many(account),
   quizzes: many(quiz),
+  results: many(result),
 }));
 
 export const quizRelations = relations(quiz, ({ one }) => ({
   owner: one(user, {
     fields: [quiz.ownerId],
+    references: [user.id],
+  }),
+}));
+
+export const resultRelations = relations(result, ({ one }) => ({
+  owner: one(user, {
+    fields: [result.ownerId],
     references: [user.id],
   }),
 }));
