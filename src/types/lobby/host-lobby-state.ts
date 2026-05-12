@@ -14,6 +14,7 @@ export const HostLobbyStateSchema = z.object({
   answers: z.array(AnswerSchema),
   lobbySettings: LobbySettingsSchema,
   timeout: z.optional(z.iso.datetime()),
+  answerCount: z.number().int().nonnegative(),
 });
 
 export type HostLobbyState = z.infer<typeof HostLobbyStateSchema>;
